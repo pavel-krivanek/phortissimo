@@ -81,6 +81,28 @@ ForthTestExtendedWords >> testChar [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> testComments [
+
+	forth << '
+	: literal immediate '' lit , 	, ; 
+	: ''('' [ char ( ] literal ;
+	: '')'' [ char ) ] literal ;
+	: begin immediate here @ ;
+	: until immediate '' 0branch , here @ - , ;
+	: if immediate '' 0branch , here @ 0 , ;
+	: then immediate dup here @ swap - swap ! ;
+	: else immediate '' branch , here @ 0 , swap dup here @ swap - swap ! ;
+	: ( immediate 1 begin key dup ''('' = if drop 1+ else '')'' = if 1- then then dup 0= until drop ;
+	( this is a comment )
+	1 2 3
+	'.
+	
+	forth run.
+	self assertStack: #(1 2 3).
+
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> testDiv [
 
 	forth << ': / /mod swap drop ;
