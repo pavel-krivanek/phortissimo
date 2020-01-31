@@ -11,11 +11,44 @@ ForthTestExtendedWords >> setUp [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> testBeginAgain [
+
+	forth << '
+	: if immediate '' 0branch , here @ 0 , ;
+	: then immediate dup here @ swap - swap ! ;
+	: begin immediate here @ ;
+	: again immediate '' branch , here @ - , ;
+	: test 10 begin dup 1- dup 0= if exit then again ; 
+	test
+	'.
+	
+	forth run.
+	self assertStack: #(10 9 8 7 6 5 4 3 2 1 0).
+
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> testBeginUntil [
 
 	forth << ': begin immediate here @ ;
 	: until immediate '' 0branch , here @ - , ;
 	: test 10 begin dup 1- dup 0= until ; 
+	test
+	'.
+	
+	forth run.
+	self assertStack: #(10 9 8 7 6 5 4 3 2 1 0).
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testBeginWhileRepeat [
+
+	forth << '
+	: begin immediate here @ ;
+	: while immediate '' 0branch , here @ 0 , ;
+	: repeat immediate '' branch , swap here @ - , dup here @ swap - swap ! ;
+	: test 10 begin dup 0<> while dup 1- repeat ; 
 	test
 	'.
 	
@@ -141,5 +174,21 @@ ForthTestExtendedWords >> testTick [
 	
 	forth run.
 	self assertStack: #(12).
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testWhileRepeat [
+
+	forth << '
+	: while immediate '' %branch , here @ 0 , ;
+	: repeat immediate '' branch , swap here @ - , dup here @ swap - swap ! ;
+	: 
+	: test 10 begin dup 1- dup 0= if exit then again ; 
+	test
+	'.
+	
+	forth run.
+	self assertStack: #(10 9 8 7 6 5 4 3 2 1 0).
 
 ]
