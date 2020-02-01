@@ -58,6 +58,48 @@ ForthTestExtendedWords >> testBeginWhileRepeat [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> testBeginWhileRepeatUppercase [
+
+	forth := ForthUppercase new init.
+
+	forth << '
+\ BEGIN loop-part condition UNTIL
+\	-- compiles to: --> loop-part condition 0BRANCH OFFSET
+\	where OFFSET points back to the loop-part
+\ This is like do { loop-part } while (condition) in the C language
+: BEGIN IMMEDIATE
+	HERE @		\ save location on the stack
+;
+
+
+\ BEGIN condition WHILE loop-part REPEAT
+\	-- compiles to: --> condition 0BRANCH OFFSET2 loop-part BRANCH OFFSET
+\	where OFFSET points back to condition (the beginning) and OFFSET2 points to after the whole piece of code
+\ So this is like a while (condition) { loop-part } loop in the C language
+: WHILE IMMEDIATE
+	'' 0BRANCH ,	\ compile 0BRANCH
+	HERE @		\ save location of the offset2 on the stack
+	0 ,		\ compile a dummy offset2
+;	
+	
+: REPEAT IMMEDIATE
+	'' BRANCH ,	\ compile BRANCH
+	SWAP		\ get the original offset (from BEGIN)
+	HERE @ - ,	\ and compile it after BRANCH
+	DUP
+	HERE @ SWAP -	\ calculate the offset2
+	SWAP !		\ and back-fill it in the original location
+;
+	: TEST 10 BEGIN DUP 0<> WHILE DUP 1- REPEAT ; 
+	TEST
+	'.
+	
+	forth run.
+	self assertStack: #(10 9 8 7 6 5 4 3 2 1 0).
+
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> testBooleans [
 
 	forth << ': true  1 ;
@@ -155,6 +197,21 @@ ForthTestExtendedWords >> testItVariables [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> testLineComments [
+
+	forth << '
+	1 \ comment 2
+	3
+\ comment
+4
+	'.
+	
+	forth run.
+	self assertStack: #(1 3 4).
+
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> testLiteral [
 
 	forth << ': literal immediate '' lit , 	, ; 
@@ -196,21 +253,5 @@ ForthTestExtendedWords >> testTick [
 	
 	forth run.
 	self assertStack: #(12).
-
-]
-
-{ #category : #running }
-ForthTestExtendedWords >> testWhileRepeat [
-
-	forth << '
-	: while immediate '' %branch , here @ 0 , ;
-	: repeat immediate '' branch , swap here @ - , dup here @ swap - swap ! ;
-	: 
-	: test 10 begin dup 1- dup 0= if exit then again ; 
-	test
-	'.
-	
-	forth run.
-	self assertStack: #(10 9 8 7 6 5 4 3 2 1 0).
 
 ]

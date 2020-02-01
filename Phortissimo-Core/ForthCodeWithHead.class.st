@@ -31,20 +31,24 @@ ForthCodeWithHead >> flags [
 { #category : #accessing }
 ForthCodeWithHead >> installAt: initialPosition [
 
-	| position headAddress |
+	| position headAddress wordName |
 		
 	position := initialPosition.
 	headAddress := position.
+
+	wordName := forth uppercase 
+		ifTrue: [  self name asUppercase ]
+		ifFalse: [  self name ].
 	
 	forth addLabel: 'name_', self label address: position.
 	forth writeWord: forth lastWord at: position.
 	position := position + forth wordSize.
 	
-	forth writeByte: self name size + self flags at: position.
+	forth writeByte: wordName size + self flags at: position.
 	position := position + 1.
 	
-	self name withIndexDo: [ :char :i | forth writeByte: (self name at: i) asciiValue at: position + i - 1 ].
-	position := position + self name size.
+	wordName withIndexDo: [ :char :i | forth writeByte: (wordName at: i) asciiValue at: position + i - 1 ].
+	position := position + wordName size.
 
 	forth addLabel:  self label address: position.
 

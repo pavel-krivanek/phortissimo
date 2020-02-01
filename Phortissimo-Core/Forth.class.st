@@ -139,10 +139,11 @@ Forth >> initialize [
 	
 	inputBuffer := OrderedCollection new.
 	outputBuffer := OrderedCollection new.
-	
+		
 	self memoryInitializer initializeMemory.
 	
 	state := #running.
+
 ]
 
 { #category : #initialization }
@@ -361,6 +362,16 @@ Forth >> privWord [
 			ifTrue: [ true ].
 	] whileFalse.
 
+	(length = 1 and: [ (self byteAt: self wordBufferAddress) = ($\ asciiValue) ]) ifTrue: [ 
+		[ 
+		self inputBuffer isEmpty ifTrue: [ 
+			self noInput.
+			^ self wordBufferAddress -> 0 ].
+		characterCode := self inputBuffer removeFirst.
+		character := Character value: characterCode.
+		(character = Character cr) or: [ character = Character lf ] ] whileFalse.
+		^ self privWord ].
+
 	^ self wordBufferAddress -> length
 	
 	
@@ -457,6 +468,11 @@ Forth >> toggleFlag: flag of: wordAddress [
 Forth >> unknownLabels [
 
 	^ unknownLabels
+]
+
+{ #category : #accessing }
+Forth >> uppercase [
+	^ false
 ]
 
 { #category : #initialization }
