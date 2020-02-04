@@ -145,6 +145,41 @@ ForthTestExtendedWords >> testComments [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> testDSPStore [
+
+	forth := ForthUppercase new init.
+	forth << '1 4 DSP!'.
+	forth run.
+	self assertStack: #(1 0 0 0).
+	
+	forth := ForthUppercase new init.
+	forth << '1 2 3 4 5 2 DSP!'.
+	forth run.
+	self assertStack: #(1 2)
+
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testDepth [
+
+	forth := ForthUppercase new init.
+
+	forth << ';
+: DEPTH
+	DSP@ S0 @ -
+;
+
+	
+1 2 3 DEPTH
+	'.
+	
+	forth run.
+	self assertStack: #(1 2 3 3)
+
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> testDiv [
 
 	forth << ': / /mod swap drop ;
@@ -193,6 +228,25 @@ ForthTestExtendedWords >> testItVariables [
 	
 	forth run.
 	self assertStack: #(1).
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testJonesForth [ 
+
+	forth := ForthUppercase new init.
+
+	forth << ';
+: DEPTH
+	DSP@ S0 @ -
+;
+
+	
+1 2 3 DEPTH
+	'.
+	
+	forth run.
+	self assertStack: #(1 2 3 3)
 
 ]
 

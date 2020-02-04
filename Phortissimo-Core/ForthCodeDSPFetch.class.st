@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeDSPFetch >> execute [ 
 
-	forth push: forth stack size
+	forth push: forth stack size+1
 ]
 
 { #category : #accessing }
