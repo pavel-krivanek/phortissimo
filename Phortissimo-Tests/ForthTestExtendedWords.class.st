@@ -471,8 +471,8 @@ ForthTestExtendedWords >> testDotS [
 	EMIT
 ;
 
-: .S		( -- )
-	S0 @ 		( get current stack pointer )
+: .S		
+	S0 @ 		
 	DSP@ 
 	2 -
 	BEGIN
@@ -704,5 +704,29 @@ ForthTestExtendedWords >> testUDot [
 	forth run.
 	self assertStack: #().
 	self assertCollection: (String withAll: forth outputBuffer asByteArray) equals: '1 9 10 A '
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testUWidth [
+
+	forth := ForthUppercase new init.
+	forth << self part1.
+
+	forth << '
+: UWIDTH	( u -- width )
+	BASE @ /	( rem quot )
+	?DUP IF		( if quotient <> 0 then )
+		RECURSE 1+	( return 1+recursive call )
+	ELSE
+		1		( return 1 )
+	THEN
+;
+
+1 UWIDTH 11 UWIDTH 111 UWIDTH
+	'.
+	
+	forth run.
+	self assertStack: #(1 2 3).
 
 ]
