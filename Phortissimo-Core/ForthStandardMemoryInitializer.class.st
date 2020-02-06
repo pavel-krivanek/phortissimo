@@ -120,6 +120,8 @@ ForthStandardMemoryInitializer >> initializeDataStackPrimitives [
 	self installAll: { 
 		ForthCodeDSPFetch.
 		ForthCodeDSPStore.
+		ForthCodeFetchDSP.
+		ForthCodeStoreDSP.
 	}
 	
 ]
