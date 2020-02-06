@@ -444,6 +444,59 @@ ForthTestExtendedWords >> testDiv [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> testDotS [
+
+	forth := ForthUppercase new init.
+	forth << self part1.
+
+	forth << '
+	
+: HEX ( -- ) 16 BASE ! ;
+	
+( This is the underlying recursive definition of U. )
+: U.		( u -- )
+	BASE @ /MOD	( width rem quot ) 
+	?DUP IF			( if quotient <> 0 then )
+		RECURSE		( print the quotient )
+	THEN
+
+	( print the remainder )
+	DUP 10 < IF
+		''0''		( decimal digits 0..9 )
+	ELSE
+		10 -		( hex and beyond digits A..Z )
+		''A''
+	THEN
+	+
+	EMIT
+;
+
+: .S		( -- )
+	S0 @ 		( get current stack pointer )
+	DSP@ 
+	2 -
+	BEGIN
+		2DUP <=
+	WHILE
+		SWAP DUP @DSP U.	( print the stack element )
+		SPACE
+		1+		( move up )
+		SWAP
+	REPEAT
+	DROP
+	DROP
+;
+
+1 2 3 4 .S
+	'.
+	
+	forth run.
+	self assertStack: #(1 2 3 4).
+	self assertCollection: (String withAll: forth outputBuffer asByteArray) equals: '1 2 3 4 '
+
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> testEmitSpace [
 
 	forth << ': ''\n'' 10 ;
