@@ -57,6 +57,10 @@ ForthStandardMemoryInitializer >> initializeBuitInConstants [
  
 	self addCode: (ForthConstant on: forth name: 'VERSION' value: 7).
 	self addCode: (ForthConstant on: forth name: 'DOCOL' value: (forth labels at: #DOCOL)).
+	self addCode: (ForthConstant on: forth name: 'F_LENMASK' value: forth flagLengthMask).
+	self addCode: (ForthConstant on: forth name: 'F_HIDDEN' value: forth flagHidden).
+	self addCode: (ForthConstant on: forth name: 'F_IMMED' value: forth flagImmediate).
+
 ]
 
 { #category : #initialization }

@@ -106,6 +106,12 @@ Forth >> flagImmediate [
 	^ 16r80
 ]
 
+{ #category : #accessing }
+Forth >> flagLengthMask [
+
+	^ 16r1F
+]
+
 { #category : #initialization }
 Forth >> init [ 
 

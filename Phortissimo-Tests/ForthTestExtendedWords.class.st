@@ -756,6 +756,97 @@ ForthTestExtendedWords >> part4 [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> part5 [
+
+	^ ' (
+	PRINTING THE DICTIONARY ----------------------------------------------------------------------
+
+	ID. takes an address of a dictionary entry and prints the word''s name.
+
+	For example: LATEST @ ID. would print the name of the last word that was defined.
+)
+: ID.
+	4+		( skip over the link pointer )
+	DUP C@		( get the flags/length byte )
+	F_LENMASK AND	( mask out the flags - just want the length )
+
+	BEGIN
+		DUP 0>		( length > 0? )
+	WHILE
+		SWAP 1+		( addr len -- len addr+1 )
+		DUP C@		( len addr -- len addr char | get the next character)
+		EMIT		( len addr char -- len addr | and print it)
+		SWAP 1-		( len addr -- addr len-1    | subtract one from length )
+	REPEAT
+	2DROP		( len addr -- )
+;
+
+(
+	''WORD word FIND ?HIDDEN'' returns true if ''word'' is flagged as hidden.
+
+	''WORD word FIND ?IMMEDIATE'' returns true if ''word'' is flagged as immediate.
+)
+: ?HIDDEN
+	4+		( skip over the link pointer )
+	C@		( get the flags/length byte )
+	F_HIDDEN AND	( mask the F_HIDDEN flag and return it (as a truth value) )
+;
+: ?IMMEDIATE
+	4+		( skip over the link pointer )
+	C@		( get the flags/length byte )
+	F_IMMED AND	( mask the F_IMMED flag and return it (as a truth value) )
+;
+
+(
+	WORDS prints all the words defined in the dictionary, starting with the word defined most recently.
+	However it doesn''t print hidden words.
+
+	The implementation simply iterates backwards from LATEST using the link pointers.
+)
+: WORDS
+	LATEST @	( start at LATEST dictionary entry )
+	BEGIN
+		?DUP		( while link pointer is not null )
+	WHILE
+		DUP ?HIDDEN NOT IF	( ignore hidden words )
+			DUP ID.		( but if not hidden, print the word )
+			SPACE
+		THEN
+		@		( dereference the link pointer - go to previous word )
+	REPEAT
+	CR
+;
+
+(
+	FORGET ----------------------------------------------------------------------
+
+	So far we have only allocated words and memory.  FORTH provides a rather primitive method
+	to deallocate.
+
+	''FORGET word'' deletes the definition of ''word'' from the dictionary and everything defined
+	after it, including any variables and other memory allocated after.
+
+	The implementation is very simple - we look up the word (which returns the dictionary entry
+	address).  Then we set HERE to point to that address, so in effect all future allocations
+	and definitions will overwrite memory starting at the word.  We also need to set LATEST to
+	point to the previous word.
+
+	Note that you cannot FORGET built-in words (well, you can try but it will probably cause
+	a segfault).
+
+	XXX: Because we wrote VARIABLE to store the variable in memory allocated before the word,
+	in the current implementation VARIABLE FOO FORGET FOO will leak 1 cell of memory.
+)
+: FORGET
+	WORD FIND	( find the word, gets the dictionary entry address )
+	DUP @ LATEST !	( set LATEST to point to the previous word )
+	HERE !		( and store HERE with the dictionary address )
+;
+
+'
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> setUp [
 
 	forth := Forth new init.
@@ -1286,5 +1377,26 @@ ForthTestExtendedWords >> testUWidth [
 	
 	forth run.
 	self assertStack: #(1 2 3).
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testWords [
+
+	forth := ForthUppercase new init.
+	forth << self part1.
+	forth << self part2.
+	forth << self part3.
+	forth << self part4.
+	forth << self part5.
+
+	forth << ' 
+	WORDS	
+'.
+	
+	forth run.
+	self assertStack: #().
+	self assert: ((String withAll: forth outputBuffer asByteArray) beginsWith: 'FORGET WORDS ').
+	self assert: ((String withAll: forth outputBuffer asByteArray) endsWith: 'SWAP DROP ', String lf) 
 
 ]
