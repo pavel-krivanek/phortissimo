@@ -19,5 +19,5 @@ ForthCodeTDFA >> execute [
 { #category : #accessing }
 ForthCodeTDFA >> name [
 
-	^ '>cfa'
+	^ '>dfa'
 ]

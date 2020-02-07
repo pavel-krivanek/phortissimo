@@ -549,6 +549,213 @@ ForthTestExtendedWords >> part3 [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> part4 [
+
+	^ ' (
+	CONSTANTS AND VARIABLES ----------------------------------------------------------------------
+
+	In FORTH, global constants and variables are defined like this:
+
+	10 CONSTANT TEN		when TEN is executed, it leaves the integer 10 on the stack
+	VARIABLE VAR		when VAR is executed, it leaves the address of VAR on the stack
+
+	Constants can be read but not written, eg:
+
+	TEN . CR		prints 10
+
+	You can read a variable (in this example called VAR) by doing:
+
+	VAR @			leaves the value of VAR on the stack
+	VAR @ . CR		prints the value of VAR
+	VAR ? CR		same as above, since ? is the same as @ .
+
+	and update the variable by doing:
+
+	20 VAR !		sets VAR to 20
+
+	Note that variables are uninitialised (but see VALUE later on which provides initialised
+	variables with a slightly simpler syntax).
+
+	How can we define the words CONSTANT and VARIABLE?
+
+	The trick is to define a new word for the variable itself (eg. if the variable was called
+	''VAR'' then we would define a new word called VAR).  This is easy to do because we exposed
+	dictionary entry creation through the CREATE word (part of the definition of : above).
+	A call to WORD [TEN] CREATE (where [TEN] means that "TEN" is the next word in the input)
+	leaves the dictionary entry:
+
+				   +--- HERE
+				   |
+				   V
+	+---------+---+---+---+---+
+	| LINK    | 3 | T | E | N |
+	+---------+---+---+---+---+
+                   len
+
+	For CONSTANT we can continue by appending DOCOL (the codeword), then LIT followed by
+	the constant itself and then EXIT, forming a little word definition that returns the
+	constant:
+
+	+---------+---+---+---+---+------------+------------+------------+------------+
+	| LINK    | 3 | T | E | N | DOCOL      | LIT        | 10         | EXIT       |
+	+---------+---+---+---+---+------------+------------+------------+------------+
+                   len              codeword
+
+	Notice that this word definition is exactly the same as you would have got if you had
+	written : TEN 10 ;
+
+	Note for people reading the code below: DOCOL is a constant word which we defined in the
+	assembler part which returns the value of the assembler symbol of the same name.
+)
+: CONSTANT
+	WORD		( get the name (the name follows CONSTANT) )
+	CREATE		( make the dictionary entry )
+	DOCOL ,		( append DOCOL (the codeword field of this word) )
+	'' LIT ,		( append the codeword LIT )
+	,		( append the value on the top of the stack )
+	'' EXIT ,	( append the codeword EXIT )
+;
+
+(
+	VARIABLE is a little bit harder because we need somewhere to put the variable.  There is
+	nothing particularly special about the user memory (the area of memory pointed to by HERE
+	where we have previously just stored new word definitions).  We can slice off bits of this
+	memory area to store anything we want, so one possible definition of VARIABLE might create
+	this:
+
+	   +--------------------------------------------------------------+
+	   |								  |
+	   V								  |
+	+---------+---------+---+---+---+---+------------+------------+---|--------+------------+
+	| <var>   | LINK    | 3 | V | A | R | DOCOL      | LIT        | <addr var> | EXIT       |
+	+---------+---------+---+---+---+---+------------+------------+------------+------------+
+        		     len              codeword
+
+	where <var> is the place to store the variable, and <addr var> points back to it.
+
+	To make this more general let''s define a couple of words which we can use to allocate
+	arbitrary memory from the user memory.
+
+	First ALLOT, where n ALLOT allocates n bytes of memory.  (Note when calling this that
+	it''s a very good idea to make sure that n is a multiple of 4, or at least that next time
+	a word is compiled that HERE has been left as a multiple of 4).
+)
+: ALLOT		( n -- addr )
+	HERE @ SWAP	( here n )
+	HERE +!		( adds n to HERE, after this the old value of HERE is still on the stack )
+;
+
+(
+	Second, CELLS.  In FORTH the phrase ''n CELLS ALLOT'' means allocate n integers of whatever size
+	is the natural size for integers on this machine architecture.  On this 32 bit machine therefore
+	CELLS just multiplies the top of stack by 4.
+)
+: CELLS ( n -- n ) 4 * ;
+
+(
+	So now we can define VARIABLE easily in much the same way as CONSTANT above.  Refer to the
+	diagram above to see what the word that this creates will look like.
+)
+: VARIABLE
+	1 CELLS ALLOT	( allocate 1 cell of memory, push the pointer to this memory )
+	WORD CREATE	( make the dictionary entry (the name follows VARIABLE) )
+	DOCOL ,		( append DOCOL (the codeword field of this word) )
+	'' LIT ,		( append the codeword LIT )
+	,		( append the pointer to the new memory )
+	'' EXIT ,	( append the codeword EXIT )
+;
+
+(
+	VALUES ----------------------------------------------------------------------
+
+	VALUEs are like VARIABLEs but with a simpler syntax.  You would generally use them when you
+	want a variable which is read often, and written infrequently.
+
+	20 VALUE VAL 	creates VAL with initial value 20
+	VAL		pushes the value (20) directly on the stack
+	30 TO VAL	updates VAL, setting it to 30
+	VAL		pushes the value (30) directly on the stack
+
+	Notice that ''VAL'' on its own doesn''t return the address of the value, but the value itself,
+	making values simpler and more obvious to use than variables (no indirection through ''@'').
+	The price is a more complicated implementation, although despite the complexity there is no
+	performance penalty at runtime.
+
+	A naive implementation of ''TO'' would be quite slow, involving a dictionary search each time.
+	But because this is FORTH we have complete control of the compiler so we can compile TO more
+	efficiently, turning:
+		TO VAL
+	into:
+		LIT <addr> !
+	and calculating <addr> (the address of the value) at compile time.
+
+	Now this is the clever bit.  We''ll compile our value like this:
+
+	+---------+---+---+---+---+------------+------------+------------+------------+
+	| LINK    | 3 | V | A | L | DOCOL      | LIT        | <value>    | EXIT       |
+	+---------+---+---+---+---+------------+------------+------------+------------+
+                   len              codeword
+
+	where <value> is the actual value itself.  Note that when VAL executes, it will push the
+	value on the stack, which is what we want.
+
+	But what will TO use for the address <addr>?  Why of course a pointer to that <value>:
+
+		code compiled	- - - - --+------------+------------+------------+-- - - - -
+		by TO VAL		  | LIT        | <addr>     | !          |
+				- - - - --+------------+-----|------+------------+-- - - - -
+							     |
+							     V
+	+---------+---+---+---+---+------------+------------+------------+------------+
+	| LINK    | 3 | V | A | L | DOCOL      | LIT        | <value>    | EXIT       |
+	+---------+---+---+---+---+------------+------------+------------+------------+
+                   len              codeword
+
+	In other words, this is a kind of self-modifying code.
+
+	(Note to the people who want to modify this FORTH to add inlining: values defined this
+	way cannot be inlined).
+)
+: VALUE		( n -- )
+	WORD CREATE	( make the dictionary entry (the name follows VALUE) )
+	DOCOL ,		( append DOCOL )
+	'' LIT ,		( append the codeword LIT )
+	,		( append the initial value )
+	'' EXIT ,	( append the codeword EXIT )
+;
+
+: TO IMMEDIATE	( n -- )
+	WORD		( get the name of the value )
+	FIND		( look it up in the dictionary )
+	>DFA		( get a pointer to the first data field (the ''LIT'') )
+	4+		( increment to point at the value )
+	STATE @ IF	( compiling? )
+		'' LIT ,		( compile LIT )
+		,		( compile the address of the value )
+		'' ! ,		( compile ! )
+	ELSE		( immediate mode )
+		!		( update it straightaway )
+	THEN
+;
+
+( x +TO VAL adds x to VAL )
+: +TO IMMEDIATE
+	WORD		( get the name of the value )
+	FIND		( look it up in the dictionary )
+	>DFA		( get a pointer to the first data field (the ''LIT'') )
+	4+		( increment to point at the value )
+	STATE @ IF	( compiling? )
+		'' LIT ,		( compile LIT )
+		,		( compile the address of the value )
+		'' +! ,		( compile +! )
+	ELSE		( immediate mode )
+		+!		( update it straightaway )
+	THEN
+;
+'
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> setUp [
 
 	forth := Forth new init.
@@ -685,6 +892,35 @@ ForthTestExtendedWords >> testComments [
 	
 	forth run.
 	self assertStack: #(1 2 3).
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testConstantsAndVariables [
+
+	forth := ForthUppercase new init.
+	forth << self part1.
+	forth << self part2.
+	forth << self part3.
+	forth << self part4.
+
+	forth << ' 
+	5 CONSTANT FIVE 
+	FIVE U.
+   VARIABLE VAR
+	6 VAR !
+	VAR ? 
+	2 VALUE VAL
+	VAL .
+	1 TO VAL
+	VAL .
+	2 +TO VAL
+	VAL .
+	'.
+	
+	forth run.
+	self assertStack: #().
+	self assertCollection: (String withAll: forth outputBuffer asByteArray) equals: '5 6 2 1 3 ' 
 
 ]
 
