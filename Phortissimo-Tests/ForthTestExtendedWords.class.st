@@ -259,6 +259,164 @@ ForthTestExtendedWords >> part1 [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> part2 [
+
+	^ '( Some more complicated stack examples, showing the stack notation. )
+: NIP ( x y -- y ) SWAP DROP ;
+: TUCK ( x y -- y x y ) SWAP OVER ;
+: PICK ( x_u ... x_1 x_0 u -- x_u ... x_1 x_0 x_u )
+   DSP@ SWAP -	
+   2 -
+	@DSP	
+;
+
+( With the looping constructs, we can now write SPACES, which writes n spaces to stdout. )
+: SPACES	( n -- )
+	BEGIN
+		DUP 0>		( while n > 0 )
+	WHILE
+		SPACE		( print a space )
+		1-		( until we count down to 0 )
+	REPEAT
+	DROP
+;
+
+( Standard words for manipulating BASE. )
+: DECIMAL ( -- ) 10 BASE ! ;
+: HEX ( -- ) 16 BASE ! ;
+
+(
+	PRINTING NUMBERS ----------------------------------------------------------------------
+
+	The standard FORTH word . (DOT) is very important.  It takes the number at the top
+	of the stack and prints it out.  However first I''m going to implement some lower-level
+	FORTH words:
+
+	U.R	( u width -- )	which prints an unsigned number, padded to a certain width
+	U.	( u -- )	which prints an unsigned number
+	.R	( n width -- )	which prints a signed number, padded to a certain width.
+
+	For example:
+		-123 6 .R
+	will print out these characters:
+		<space> <space> - 1 2 3
+
+	In other words, the number padded left to a certain number of characters.
+
+	The full number is printed even if it is wider than width, and this is what allows us to
+	define the ordinary functions U. and . (we just set width to zero knowing that the full
+	number will be printed anyway).
+
+	Another wrinkle of . and friends is that they obey the current base in the variable BASE.
+	BASE can be anything in the range 2 to 36.
+
+	While we''re defining . &c we can also define .S which is a useful debugging tool.  This
+	word prints the current stack (non-destructively) from top to bottom.
+)
+
+( This is the underlying recursive definition of U. )
+: U.		( u -- )
+	BASE @ /MOD	( width rem quot )
+	?DUP IF			( if quotient <> 0 then )
+		RECURSE		( print the quotient )
+	THEN
+
+	( print the remainder )
+	DUP 10 < IF
+		''0''		( decimal digits 0..9 )
+	ELSE
+		10 -		( hex and beyond digits A..Z )
+		''A''
+	THEN
+	+
+	EMIT
+;
+
+(
+	FORTH word .S prints the contents of the stack.  It doesn''t alter the stack.
+	Very useful for debugging.
+)
+: .S		( -- )
+	DSP@		( get current stack pointer )
+	BEGIN
+		DUP S0 @ <
+	WHILE
+		DUP @ U.	( print the stack element )
+		SPACE
+		4+		( move up )
+	REPEAT
+	DROP
+;
+
+( This word returns the width (in characters) of an unsigned number in the current base )
+: UWIDTH	( u -- width )
+	BASE @ /	( rem quot )
+	?DUP IF		( if quotient <> 0 then )
+		RECURSE 1+	( return 1+recursive call )
+	ELSE
+		1		( return 1 )
+	THEN
+;
+
+: U.R		( u width -- )
+	SWAP		( width u )
+	DUP		( width u u )
+	UWIDTH		( width u uwidth )
+	ROT		( u uwidth width )
+	SWAP -		( u width-uwidth )
+	( At this point if the requested width is narrower, we''ll have a negative number on the stack.
+	  Otherwise the number on the stack is the number of spaces to print.  But SPACES won''t print
+	  a negative number of spaces anyway, so it''s now safe to call SPACES ... )
+	SPACES
+	( ... and then call the underlying implementation of U. )
+	U.
+;
+
+(
+	.R prints a signed number, padded to a certain width.  We can''t just print the sign
+	and call U.R because we want the sign to be next to the number (''-123'' instead of ''-  123'').
+)
+: .R		( n width -- )
+	SWAP		( width n )
+	DUP 0< IF
+		NEGATE		( width u )
+		1		( save a flag to remember that it was negative | width n 1 )
+		SWAP		( width 1 u )
+		ROT		( 1 u width )
+		1-		( 1 u width-1 )
+	ELSE
+		0		( width u 0 )
+		SWAP		( width 0 u )
+		ROT		( 0 u width )
+	THEN
+	SWAP		( flag width u )
+	DUP		( flag width u u )
+	UWIDTH		( flag width u uwidth )
+	ROT		( flag u uwidth width )
+	SWAP -		( flag u width-uwidth )
+
+	SPACES		( flag u )
+	SWAP		( u flag )
+
+	IF			( was it negative? print the - character )
+		''-'' EMIT
+	THEN
+
+	U.
+;
+
+( Finally we can define word . in terms of .R, with a trailing space. )
+: . 0 .R SPACE ;
+
+( The real U., note the trailing space. )
+: U. U. SPACE ;
+
+( ? fetches the integer at an address and prints it. )
+: ? ( addr -- ) @ . ;
+'
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> setUp [
 
 	forth := Forth new init.
@@ -620,6 +778,22 @@ ForthTestExtendedWords >> testNip [
 	
 	forth run.
 	self assertStack: #(1 3)
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testNumbersPrinting [
+
+	forth := ForthUppercase new init.
+	forth << self part1.
+	forth << self part2.
+
+	forth << '
+1 U. 1000 U. -1 4 .R SPACE 2 5 U.R SPACE -255 .'.
+	
+	forth run.
+	self assertStack: #().
+	self assertCollection: (String withAll: forth outputBuffer asByteArray) equals: '1 1000   -1     2 -255 ' 
 
 ]
 

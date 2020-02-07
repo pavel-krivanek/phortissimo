@@ -72,7 +72,7 @@ Forth >> find: nameArray [
 	current := self varLatestValue.
 	
 	[  current = 0 ifTrue: [ ^ 0 ].
-		found := self match: nameArray at: current.
+		found := (self match: nameArray at: current) and: [(self isHidden: current) not].
 		found ifFalse: [ current := self wordAt: current ].
 		found
 	] whileFalse.
@@ -130,7 +130,7 @@ Forth >> initPos: anObject [
 { #category : #initialization }
 Forth >> initialize [
 
-	memory := (1 to: 3*1024) collect: [ :each | nil ].
+	memory := (1 to: 5*1024) collect: [ :each | nil ].
 	self resetStack.
 	returnStack := OrderedCollection new.
 	labels := Dictionary new.
@@ -150,6 +150,12 @@ Forth >> initialize [
 Forth >> inputBuffer [
 
 	^ inputBuffer 
+]
+
+{ #category : #'as yet unclassified' }
+Forth >> isHidden: dictionaryWordAddress [
+
+	^ ((self byteAt: (dictionaryWordAddress + self wordSize)) bitAnd: self flagHidden) ~= 0. 
 ]
 
 { #category : #'as yet unclassified' }
@@ -451,7 +457,7 @@ Forth >> stack: anObject [
 { #category : #initialization }
 Forth >> step [ 
 
-	('pc: ', pc asString, ' ', (self labels associations select: [ :e | e value = pc ]) asString)  traceCr.
+	"('pc: ', pc asString, ' ', (self labels associations select: [ :e | e value = pc ]) asString)  traceCr."
 	(memory at: pc) execute.
 	pc := pc + 1.
 ]

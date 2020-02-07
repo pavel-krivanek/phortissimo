@@ -9,7 +9,5 @@ ForthCodeDoCol >> execute [
 
 	forth pushToReturnStack: forth pcNext.
 	forth pcCurrent: (forth pcCurrent + forth wordSize).
-	forth pcNext: forth pcCurrent.
-	"forth privNext."
-	
+	forth pcNext: forth pcCurrent.	
 ]

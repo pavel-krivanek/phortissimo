@@ -12,26 +12,7 @@ ForthCodeFind >> execute [
 	length := forth pop.
 	address := forth pop.
 	toFind := forth memory copyFrom: address to: address + length - 1.
-	forth push: (self find: toFind)
-	
-]
-
-{ #category : #accessing }
-ForthCodeFind >> find: nameArray [
-
-	| current found |
-
-	current := forth varLatestValue.
-	
-	[  current = 0 ifTrue: [ ^ 0 ].
-		found := forth match: nameArray at: current.
-		found ifFalse: [ current := forth wordAt: current ].
-		found
-	] whileFalse.
-
-	^ current
-	
-	
+	forth push: (forth find: toFind)
 	
 ]
 
