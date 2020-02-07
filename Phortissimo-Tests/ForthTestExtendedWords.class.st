@@ -417,6 +417,138 @@ ForthTestExtendedWords >> part2 [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> part3 [
+
+	^ '( c a b WITHIN returns true if a <= c and c < b )
+(  or define without ifs: OVER - >R - R>  U<  )
+: WITHIN
+	-ROT		( b c a )
+	OVER		( b c a c )
+	<= IF
+		> IF		( b c -- )
+			TRUE
+		ELSE
+			FALSE
+		THEN
+	ELSE
+		2DROP		( b c -- )
+		FALSE
+	THEN
+;
+
+( DEPTH returns the depth of the stack. )
+: DEPTH		( -- n )
+	S0 @ DSP@ -
+	4-			( adjust because S0 was on the stack when we pushed DSP )
+;
+
+(
+	ALIGNED takes an address and rounds it up (aligns it) to the next 4 byte boundary.
+)
+: ALIGNED	( addr -- addr )
+	3 + 3 INVERT AND	( (addr+3) & ~3 )
+;
+
+(
+	ALIGN aligns the HERE pointer, so the next word appended will be aligned properly.
+)
+: ALIGN HERE @ ALIGNED HERE ! ;
+
+(
+	STRINGS ----------------------------------------------------------------------
+
+	S" string" is used in FORTH to define strings.  It leaves the address of the string and
+	its length on the stack, (length at the top of stack).  The space following S" is the normal
+	space between FORTH words and is not a part of the string.
+
+	This is tricky to define because it has to do different things depending on whether
+	we are compiling or in immediate mode.  (Thus the word is marked IMMEDIATE so it can
+	detect this and do different things).
+
+	In compile mode we append
+		LITSTRING <string length> <string rounded up 4 bytes>
+	to the current word.  The primitive LITSTRING does the right thing when the current
+	word is executed.
+
+	In immediate mode there isn''t a particularly good place to put the string, but in this
+	case we put the string at HERE (but we _don''t_ change HERE).  This is meant as a temporary
+	location, likely to be overwritten soon after.
+)
+( C, appends a byte to the current compiled word. )
+: C,
+	HERE @ C!	( store the character in the compiled image )
+	1 HERE +!	( increment HERE pointer by 1 byte )
+;
+
+: S" IMMEDIATE		( -- addr len )
+	STATE @ IF	( compiling? )
+		'' LITSTRING ,	( compile LITSTRING )
+		HERE @		( save the address of the length word on the stack )
+		0 ,		( dummy length - we don''t know what it is yet )
+		BEGIN
+			KEY 		( get next character of the string )
+			DUP ''"'' <>
+		WHILE
+			C,		( copy character )
+		REPEAT
+		DROP		( drop the double quote character at the end )
+		DUP		( get the saved address of the length word )
+		HERE @ SWAP -	( calculate the length )
+		4-		( subtract 4 (because we measured from the start of the length word) )
+		SWAP !		( and back-fill the length location )
+		ALIGN		( round up to next multiple of 4 bytes for the remaining code )
+	ELSE		( immediate mode )
+		HERE @		( get the start address of the temporary space )
+		BEGIN
+			KEY
+			DUP ''"'' <>
+		WHILE
+			OVER C!		( save next character )
+			1+		( increment address )
+		REPEAT
+		DROP		( drop the final " character )
+		HERE @ -	( calculate the length )
+		HERE @		( push the start address )
+		SWAP 		( addr len )
+	THEN
+;
+
+(
+	." is the print string operator in FORTH.  Example: ." Something to print"
+	The space after the operator is the ordinary space required between words and is not
+	a part of what is printed.
+
+	In immediate mode we just keep reading characters and printing them until we get to
+	the next double quote.
+
+	In compile mode we use S" to store the string, then add TELL afterwards:
+		LITSTRING <string length> <string rounded up to 4 bytes> TELL
+
+	It may be interesting to note the use of [COMPILE] to turn the call to the immediate
+	word S" into compilation of that word.  It compiles it into the definition of .",
+	not into the definition of the word being compiled when this is running (complicated
+	enough for you?)
+)
+: ." IMMEDIATE		( -- )
+	STATE @ IF	( compiling? )
+		[COMPILE] S"	( read the string, and compile LITSTRING, etc. )
+		'' TELL ,	( compile the final TELL )
+	ELSE
+		( In immediate mode, just read characters and print them until we get
+		  to the ending double quote. )
+		BEGIN
+			KEY
+			DUP ''"'' = IF
+				DROP	( drop the double quote character )
+				EXIT	( return from this function )
+			THEN
+			EMIT
+		AGAIN
+	THEN
+;'
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> setUp [
 
 	forth := Forth new init.
@@ -814,6 +946,22 @@ ForthTestExtendedWords >> testPick [
 	
 	forth run.
 	self assertStack: #(1 2 6 3 4 5 6)
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testStrings [
+
+	forth := ForthUppercase new init.
+	forth << self part1.
+	forth << self part2.
+	forth << self part3.
+
+	forth << ' ." This is a test" SPACE ." END"'.
+	
+	forth run.
+	self assertStack: #().
+	self assertCollection: (String withAll: forth outputBuffer asByteArray) equals: 'This is a test END' 
 
 ]
 

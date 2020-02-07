@@ -7,7 +7,12 @@ Class {
 { #category : #accessing }
 ForthCodeLitString >> execute [ 
 
-	self shouldBeImplemented 
+	forth pcCurrent: (forth wordAt: forth pcNext).
+	forth pcNext: forth pcNext + forth wordSize.
+	forth push: forth pcNext.
+	forth push: forth pcCurrent.
+	forth pcNext: (forth pcNext + forth pcCurrent).
+	
 ]
 
 { #category : #accessing }
