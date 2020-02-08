@@ -164,6 +164,7 @@ ForthStandardMemoryInitializer >> initializeIOPrimitives [
 ForthStandardMemoryInitializer >> initializeInterpreterPrimitives [
 
 	self installAll: { 
+		ForthCodeExecute.
 		ForthCodeHalt.
 		ForthCodeQuit.
 		ForthCodeInterpret.

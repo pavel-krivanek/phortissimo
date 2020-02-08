@@ -1143,6 +1143,95 @@ ForthTestExtendedWords >> part8 [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> part9 [
+
+	^ '
+(
+	EXECUTION TOKENS ----------------------------------------------------------------------
+
+	Standard FORTH defines a concept called an ''execution token'' (or ''xt'') which is very
+	similar to a function pointer in C.  We map the execution token to a codeword address.
+
+			execution token of DOUBLE is the address of this codeword
+						    |
+						    V
+	+---------+---+---+---+---+---+---+---+---+------------+------------+------------+------------+
+	| LINK    | 6 | D | O | U | B | L | E | 0 | DOCOL      | DUP        | +          | EXIT       |
+	+---------+---+---+---+---+---+---+---+---+------------+------------+------------+------------+
+                   len                         pad  codeword					       ^
+
+	There is one assembler primitive for execution tokens, EXECUTE ( xt -- ), which runs them.
+
+	You can make an execution token for an existing word the long way using >CFA,
+	ie: WORD [foo] FIND >CFA will push the xt for foo onto the stack where foo is the
+	next word in input.  So a very slow way to run DOUBLE might be:
+
+		: DOUBLE DUP + ;
+		: SLOW WORD FIND >CFA EXECUTE ;
+		5 SLOW DOUBLE . CR	\ prints 10
+
+	We also offer a simpler and faster way to get the execution token of any word FOO:
+
+		[''] FOO
+
+	(Exercises for readers: (1) What is the difference between [''] FOO and '' FOO?
+	(2) What is the relationship between '', [''] and LIT?)
+
+	More useful is to define anonymous words and/or to assign xt''s to variables.
+
+	To define an anonymous word (and push its xt on the stack) use :NONAME ... ; as in this
+	example:
+
+		:NONAME ." anon word was called" CR ;	\ pushes xt on the stack
+		DUP EXECUTE EXECUTE			\ executes the anon word twice
+
+	Stack parameters work as expected:
+
+		:NONAME ." called with parameter " . CR ;
+		DUP
+		10 SWAP EXECUTE		\ prints ''called with parameter 10''
+		20 SWAP EXECUTE		\ prints ''called with parameter 20''
+
+	Notice that the above code has a memory leak: the anonymous word is still compiled
+	into the data segment, so even if you lose track of the xt, the word continues to
+	occupy memory.  A good way to keep track of the xt and thus avoid the memory leak is
+	to assign it to a CONSTANT, VARIABLE or VALUE:
+
+		0 VALUE ANON
+		:NONAME ." anon word was called" CR ; TO ANON
+		ANON EXECUTE
+		ANON EXECUTE
+
+	Another use of :NONAME is to create an array of functions which can be called quickly
+	(think: fast switch statement).  This example is adapted from the ANS FORTH standard:
+
+		10 CELLS ALLOT CONSTANT CMD-TABLE
+		: SET-CMD CELLS CMD-TABLE + ! ;
+		: CALL-CMD CELLS CMD-TABLE + @ EXECUTE ;
+
+		:NONAME ." alternate 0 was called" CR ;	 0 SET-CMD
+		:NONAME ." alternate 1 was called" CR ;	 1 SET-CMD
+			\ etc...
+		:NONAME ." alternate 9 was called" CR ;	 9 SET-CMD
+
+		0 CALL-CMD
+		1 CALL-CMD
+)
+
+: :NONAME
+   0 0 CREATE	( create a word with no name - we need a dictionary header because ; expects it )
+	HERE @		( current HERE value is the address of the codeword, ie. the xt )
+	DOCOL ,		( compile DOCOL (the codeword) )
+	]		( go into compile mode )
+;
+
+: [''] IMMEDIATE
+	'' LIT ,		( compile LIT )
+;	
+	'
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> setUp [
 
 	forth := Forth new init.
@@ -1474,6 +1563,24 @@ cr space'.
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> testExecute [
+
+	forth := ForthUppercase new init.
+
+	forth << ' 
+: DOUBLE DUP + ;
+: SLOW WORD FIND >CFA EXECUTE ;
+5 SLOW DOUBLE
+10 SLOW DOUBLE
+
+'.
+	
+	forth run.
+	self assertStack: #(10 20).
+
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> testIfThenElse [
 
 	forth << ': if immediate '' 0branch , here @ 0 , ;
@@ -1622,8 +1729,7 @@ ForthTestExtendedWords >> testSee [
 	
 	forth run.
 	self assertStack: #().
-	self assert: ((String withAll: forth outputBuffer asByteArray) beginsWith: ': CELLS 4 * ;
-').
+	self assert: ((String withAll: forth outputBuffer asByteArray) beginsWith: ': CELLS 4 * ;', String lf).
 
 ]
 
