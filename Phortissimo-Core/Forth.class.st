@@ -474,7 +474,7 @@ Forth >> stack: anObject [
 { #category : #initialization }
 Forth >> step [ 
 
-	"('pc: ', pc asString, ' ', (self labels associations select: [ :e | e value = pc ]) asString)  traceCr."
+"	('pc: ', pc asString, ' ', (self labels associations select: [ :e | e value = pc ]) asString)  traceCr."
 	(memory at: pc) execute.
 	pc := pc + 1.
 ]
