@@ -847,6 +847,61 @@ ForthTestExtendedWords >> part5 [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> part6 [
+
+	^ ' : DUMP		( addr len -- )
+	BASE @ -ROT		( save the current BASE at the bottom of the stack )
+	HEX			( and switch to hexadecimal mode )
+
+	BEGIN
+		?DUP		( while len > 0 )
+	WHILE
+		OVER 8 U.R	( print the address )
+		SPACE
+
+		( print up to 16 words on this line )
+		2DUP		( addr len addr len )
+		1- 15 AND 1+	( addr len addr linelen )
+		BEGIN
+			?DUP		( while linelen > 0 )
+		WHILE
+			SWAP		( addr len linelen addr )
+			DUP C@		( addr len linelen addr byte )
+			2 .R SPACE	( print the byte )
+			1+ SWAP 1-	( addr len linelen addr -- addr len addr+1 linelen-1 )
+		REPEAT
+		DROP		( addr len )
+
+		( print the ASCII equivalents )
+		2DUP 1- 15 AND 1+ ( addr len addr linelen )
+		BEGIN
+			?DUP		( while linelen > 0)
+		WHILE
+			SWAP		( addr len linelen addr )
+			DUP C@		( addr len linelen addr byte )
+			DUP 32 128 WITHIN IF	( 32 <= c < 128? )
+				EMIT
+			ELSE
+				DROP ''.'' EMIT
+			THEN
+			1+ SWAP 1-	( addr len linelen addr -- addr len addr+1 linelen-1 )
+		REPEAT
+		DROP		( addr len )
+		CR
+
+		DUP 1- 15 AND 1+ ( addr len linelen )
+		TUCK		( addr linelen len linelen )
+		-		( addr linelen len-linelen )
+		>R + R>		( addr+linelen len-linelen )
+	REPEAT
+
+	DROP			( restore stack )
+	BASE !			( restore saved BASE )
+;
+'
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> setUp [
 
 	forth := Forth new init.
@@ -1114,6 +1169,28 @@ ForthTestExtendedWords >> testDotS [
 ]
 
 { #category : #running }
+ForthTestExtendedWords >> testDump [
+
+	forth := ForthUppercase new init.
+	forth << self part1.
+	forth << self part2.
+	forth << self part3.
+	forth << self part4.
+	forth << self part5.
+	forth << self part6.
+
+	forth << ' 
+	LATEST @ 128 DUMP
+'.
+	
+	forth run.
+	self assertStack: #().
+	self assert: ((String withAll: forth outputBuffer asByteArray) beginsWith: 'FORGET WORDS ').
+	self assert: ((String withAll: forth outputBuffer asByteArray) endsWith: 'SWAP DROP ', String lf) 
+
+]
+
+{ #category : #running }
 ForthTestExtendedWords >> testEmitSpace [
 
 	forth << ': ''\n'' 10 ;
@@ -1152,25 +1229,6 @@ ForthTestExtendedWords >> testItVariables [
 	
 	forth run.
 	self assertStack: #(1).
-
-]
-
-{ #category : #running }
-ForthTestExtendedWords >> testJonesForth [ 
-
-	forth := ForthUppercase new init.
-
-	forth << ';
-: DEPTH
-	DSP@ S0 @ -
-;
-
-	
-1 2 3 DEPTH
-	'.
-	
-	forth run.
-	self assertStack: #(1 2 3 3)
 
 ]
 
