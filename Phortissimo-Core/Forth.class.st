@@ -136,7 +136,7 @@ Forth >> initPos: anObject [
 { #category : #initialization }
 Forth >> initialize [
 
-	memory := (1 to: 5*1024) collect: [ :each | nil ].
+	memory := (1 to: 10*1024) collect: [ :each | nil ].
 	self resetStack.
 	returnStack := OrderedCollection new.
 	labels := Dictionary new.
