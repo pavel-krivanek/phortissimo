@@ -305,7 +305,7 @@ Forth >> pop [
 ]
 
 { #category : #initialization }
-Forth >> popFromReturnStack: address [ 
+Forth >> popFromReturnStack [
 
 	^ returnStack removeLast: 4
 ]
@@ -411,6 +411,9 @@ Forth >> push: bytes [
 
 { #category : #initialization }
 Forth >> pushToReturnStack: address [ 
+address = 0 ifTrue: [ self halt ].
+(address asUnsigned4Bytes = #(0 0 0 0)) ifTrue: [ self halt ].
+address traceCr.
 
 	returnStack addAll: address asUnsigned4Bytes 
 ]
