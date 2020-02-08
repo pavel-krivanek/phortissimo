@@ -121,7 +121,6 @@ ForthTestExtendedWords >> part1 [
 : RECURSE IMMEDIATE
 	LATEST @	\ LATEST points to the word being compiled at the moment
 	>CFA		\ get the codeword
-	4-
 	,		\ compile it
 ;
 
@@ -1185,9 +1184,7 @@ ForthTestExtendedWords >> testDump [
 	
 	forth run.
 	self assertStack: #().
-	self assert: ((String withAll: forth outputBuffer asByteArray) beginsWith: 'FORGET WORDS ').
-	self assert: ((String withAll: forth outputBuffer asByteArray) endsWith: 'SWAP DROP ', String lf) 
-
+	self assert: (forth outputBuffer size) equals: 592.
 ]
 
 { #category : #running }

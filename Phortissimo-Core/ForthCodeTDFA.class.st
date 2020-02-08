@@ -7,13 +7,10 @@ Class {
 { #category : #accessing }
 ForthCodeTDFA >> execute [ 
 
-	| wordAddress current length |
+	| wordAddress |
 	
 	wordAddress := forth pop.
-	current := wordAddress + forth wordSize.
-	length := forth lengthByteAt: current.
-	
-	forth push: current + 1 + length + forth wordSize
+	forth push: (forth codewordOf: wordAddress) + forth wordSize 
 ]
 
 { #category : #accessing }
