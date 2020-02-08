@@ -9,10 +9,10 @@ ForthCodeFind >> execute [
 
 	| length address toFind |
 	
-	length := forth pop.
-	address := forth pop.
+	length := forth pop asSigned32.
+	address := forth pop asUnsigned32.
 	toFind := forth memory copyFrom: address to: address + length - 1.
-	forth push: (forth find: toFind)
+	forth push: (forth find: toFind) asUnsigned4Bytes
 	
 ]
 

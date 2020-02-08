@@ -8,9 +8,9 @@ Class {
 ForthCodeSubStore >> execute [ 
 
 	| address decrement |
-	address := forth pop.
-	decrement := forth pop.
-	forth writeWord: (forth wordAt: address)-decrement at: address 
+	address := forth pop asUnsigned32.
+	decrement := forth pop asSigned32.
+	forth writeWord: (forth signedWordAt: address)-decrement at: address 
 	
 ]
 

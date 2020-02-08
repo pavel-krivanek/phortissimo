@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeExit >> execute [ 
 
-	forth pcNext: ( forth returnStack removeLast).
+	forth pcNext: (forth returnStack removeLast: 4) asUnsigned32.
 
 	
 ]

@@ -8,9 +8,9 @@ Class {
 ForthCodeAnd >> execute [ 
 
 	| a b |
-	a := forth pop.
-	b := forth pop.
-	forth push: (a bitAnd: b)
+	a := forth pop asSigned32.
+	b := forth pop asSigned32.
+	forth push: (a bitAnd: b) asUnsigned4Bytes
 ]
 
 { #category : #accessing }

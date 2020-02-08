@@ -7,8 +7,8 @@ Class {
 { #category : #accessing }
 ForthCodeQDup >> execute [ 
 
-	forth stack last = 0
-		ifFalse: [ forth push: forth stack last ]
+	forth peek asSigned32 = 0
+		ifFalse: [ forth push: forth peek  ]
 ]
 
 { #category : #accessing }

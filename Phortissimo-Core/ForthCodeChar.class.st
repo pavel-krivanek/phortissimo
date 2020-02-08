@@ -10,7 +10,7 @@ ForthCodeChar >> execute [
 	| addressLengthAssociation |
 	
 	addressLengthAssociation := forth privWord.
-	forth push: (forth byteAt: addressLengthAssociation key ).
+	forth push: (forth byteAt: addressLengthAssociation key ) asUnsigned4Bytes.
 ]
 
 { #category : #accessing }

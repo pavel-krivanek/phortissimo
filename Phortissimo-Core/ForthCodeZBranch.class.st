@@ -9,7 +9,7 @@ ForthCodeZBranch >> execute [
 
 	| value |
 	
-	value := forth pop.
+	value := forth pop asSigned32.
 	value = 0 
 		ifTrue: [ 
 			forth pcNext: forth pcNext + (forth signedWordAt: forth pcNext) ]

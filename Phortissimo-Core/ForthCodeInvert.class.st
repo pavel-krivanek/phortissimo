@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeInvert >> execute [ 
 
-	forth push: forth pop bitInvert.
+	forth push: forth pop asUnsigned32 bitInvert asUnsigned4Bytes.
 ]
 
 { #category : #accessing }

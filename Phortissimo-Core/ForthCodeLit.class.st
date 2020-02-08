@@ -11,7 +11,7 @@ ForthCodeLit >> execute [
 	value := forth wordAt: forth pcNext.
 	forth pcCurrent: forth pcNext.
 	forth pcNext: forth pcNext + forth wordSize.
-	forth push: value.
+	forth push: value asUnsigned4Bytes.
 		
 ]
 

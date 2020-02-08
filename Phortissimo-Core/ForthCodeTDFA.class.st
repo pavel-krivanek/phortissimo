@@ -9,8 +9,8 @@ ForthCodeTDFA >> execute [
 
 	| wordAddress |
 	
-	wordAddress := forth pop.
-	forth push: (forth codewordOf: wordAddress) + forth wordSize 
+	wordAddress := forth pop asUnsigned32.
+	forth push: ((forth codewordOf: wordAddress) + forth wordSize) asUnsigned4Bytes
 ]
 
 { #category : #accessing }

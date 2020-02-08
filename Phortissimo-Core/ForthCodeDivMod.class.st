@@ -8,10 +8,10 @@ Class {
 ForthCodeDivMod >> execute [ 
 
 	| a b |
-	b := forth pop.
-	a := forth pop.
-	forth push: a \\ b.
-	forth push: a // b.
+	b := forth pop asSigned32.
+	a := forth pop asSigned32.
+	forth push: (a \\ b) asUnsigned4Bytes.
+	forth push: (a // b) asUnsigned4Bytes.
 ]
 
 { #category : #accessing }

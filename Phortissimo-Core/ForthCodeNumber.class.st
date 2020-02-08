@@ -9,13 +9,13 @@ ForthCodeNumber >> execute [
 
 	| length wordStringAddress numberErrorAssociation |
 	
-	length := forth pop.
-	wordStringAddress := forth pop.
+	length := forth pop asSigned32.
+	wordStringAddress := forth pop asUnsigned32.
 	
 	numberErrorAssociation := forth privNumber: wordStringAddress length: length.
 	
-	forth push: numberErrorAssociation key.
-	forth push: numberErrorAssociation value. "error character index"
+	forth push: numberErrorAssociation key asUnsigned4Bytes.
+	forth push: numberErrorAssociation value asUnsigned4Bytes. "error character index"
 ]
 
 { #category : #accessing }

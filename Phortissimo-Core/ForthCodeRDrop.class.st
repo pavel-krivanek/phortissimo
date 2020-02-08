@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeRDrop >> execute [ 
 
-	forth returnStack removeLast
+	forth returnStack removeLast: 4
 ]
 
 { #category : #accessing }

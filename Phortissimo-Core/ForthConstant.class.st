@@ -20,7 +20,7 @@ ForthConstant class >> on: aForth name: aName value: aValue [
 { #category : #accessing }
 ForthConstant >> execute [ 
 
-	forth push: value
+	forth push: value asUnsigned4Bytes
 ]
 
 { #category : #accessing }

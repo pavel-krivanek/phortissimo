@@ -8,8 +8,8 @@ Class {
 ForthCodeFetchDSP >> execute [ 
 
 	| address |
-	address := forth pop.
-	forth push: (forth stack at: address).
+	address := (forth pop asUnsigned32 - 1) * 4 + 1.
+	forth push: (forth stack copyFrom: address to: address + 3).
 ]
 
 { #category : #accessing }

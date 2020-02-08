@@ -287,15 +287,27 @@ Forth >> pcNext: anObject [
 ]
 
 { #category : #initialization }
+Forth >> peek [
+
+	^ stack last: 4.
+]
+
+{ #category : #initialization }
+Forth >> peekReturnStack [
+
+	^ returnStack last: 4.
+]
+
+{ #category : #initialization }
 Forth >> pop [
 
-	^ stack removeLast
+	^ (stack removeLast: 4).
 ]
 
 { #category : #initialization }
 Forth >> popFromReturnStack: address [ 
 
-	^ returnStack removeLast
+	^ returnStack removeLast: 4
 ]
 
 { #category : #'as yet unclassified' }
@@ -332,7 +344,7 @@ Forth >> privNumber: wordStringAddress length: length [
 
 	| aString base number |
 
-	base := self wordAt: (self addressForLabel: 'var_BASE').
+	base := self signedWordAt: (self addressForLabel: 'var_BASE').
 
 	aString := String withAll: ((self  memory copyFrom: wordStringAddress to: wordStringAddress + (length-1)) 
 		withIndexCollect: [ :each :index | 		
@@ -391,15 +403,16 @@ Forth >> privWord [
 ]
 
 { #category : #initialization }
-Forth >> push: anObject [
+Forth >> push: bytes [
 
-	^ stack add: anObject
+	stack addAll: bytes.
+	^ bytes
 ]
 
 { #category : #initialization }
 Forth >> pushToReturnStack: address [ 
 
-	returnStack add: address
+	returnStack addAll: address asUnsigned4Bytes 
 ]
 
 { #category : #accessing }
@@ -436,14 +449,12 @@ Forth >> signedWordAt: address [
 
 	| unsigned |
 	
-	unsigned := ((memory at: address)) +
-	  ((memory at: address + 1) <<  8) +
-	  ((memory at: address + 2) << 16) +
-	  ((memory at: address + 3) << 24).
-	
-	unsigned > 16rEFFFFFFF ifTrue: [ unsigned := (unsigned bitInvert32 + 1) negated ].
-	
-	^ unsigned
+	unsigned := ((memory at: address + 3)) +
+	  ((memory at: address + 2) <<  8) +
+	  ((memory at: address + 1) << 16) +
+	  ((memory at: address ) << 24).
+		
+	^ unsigned asSigned32
 	
 
 
@@ -532,7 +543,7 @@ Forth >> varState [
 { #category : #initialization }
 Forth >> varStateValue [
 
-	^ self wordAt: self varState
+	^ self signedWordAt: self varState
 ]
 
 { #category : #initialization }
@@ -544,10 +555,10 @@ Forth >> varStateValue: aValue [
 { #category : #initialization }
 Forth >> wordAt: address [ 
 
-	^ ((memory at: address)) +
-	  ((memory at: address + 1) <<  8) +
-	  ((memory at: address + 2) << 16) +
-	  ((memory at: address + 3) << 24) 
+	^ ((memory at: address + 3)) +
+	  ((memory at: address + 2) <<  8) +
+	  ((memory at: address + 1) << 16) +
+	  ((memory at: address + 0) << 24) 
 	
 
 
@@ -592,35 +603,14 @@ Forth >> writeWord: aWord at: address [
 
 	| num bytes |
 	
-	num := aWord < 0
-		ifFalse: [ aWord ]
-		ifTrue: [ (aWord - 1) bitInvert32 negated ].
+	num := aWord asUnsigned32.
 	
 	bytes := num asByteArrayOfSize: 4.
 
-	memory at: (address+0) put: (bytes at: 4).
-	memory at: (address+1) put: (bytes at: 3).
-	memory at: (address+2) put: (bytes at: 2).
-	memory at: (address+3) put: (bytes at: 1).
-	
-
-
-]
-
-{ #category : #initialization }
-Forth >> writeWordSigned: aWord at: address [ 
-
-	| bytes unsigned |
-	
-	unsigned := aWord.
-	unsigned < 0 ifTrue: [ unsigned := (unsigned negated - 1) bitInvert32 ].
-	
-	bytes := unsigned asByteArrayOfSize: 4.
-
-	memory at: (address+0) put: (bytes at: 4).
-	memory at: (address+1) put: (bytes at: 3).
-	memory at: (address+2) put: (bytes at: 2).
-	memory at: (address+3) put: (bytes at: 1).
+	memory at: (address+0) put: (bytes at: 1).
+	memory at: (address+1) put: (bytes at: 2).
+	memory at: (address+2) put: (bytes at: 3).
+	memory at: (address+3) put: (bytes at: 4).
 	
 
 

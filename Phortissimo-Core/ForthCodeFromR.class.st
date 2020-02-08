@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeFromR >> execute [ 
 
-	forth push: forth returnStack removeLast
+	forth push: (forth peekReturnStack)
 ]
 
 { #category : #accessing }

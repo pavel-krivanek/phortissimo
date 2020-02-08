@@ -8,7 +8,7 @@ Class {
 ForthCodeComma >> execute [ 
 
 	| value |
-	value := forth pop.
+	value := forth pop asSigned32.
 	forth privComma: value.
 ]
 

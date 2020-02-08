@@ -7,8 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeIncr >> execute [ 
 
-	forth stack at: forth stack size put: (forth stack at: forth stack size) + 1
-
+	forth push: (forth pop asSigned32 + 1) asUnsigned4Bytes 
 ]
 
 { #category : #accessing }

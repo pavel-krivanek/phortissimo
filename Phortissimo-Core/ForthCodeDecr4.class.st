@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeDecr4 >> execute [ 
 
-	forth stack at: forth stack size put: (forth stack at: forth stack size) - 4
+	forth push: ((forth pop asSigned32) - 4) asUnsigned4Bytes 
 
 ]
 

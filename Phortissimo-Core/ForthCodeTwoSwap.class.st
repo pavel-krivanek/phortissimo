@@ -9,14 +9,14 @@ ForthCodeTwoSwap >> execute [
 
 	| a b c d |
 	
-	a := forth pop.	
-	b := forth pop.
-	c := forth pop.
-	d := forth pop.
-	forth push: b.
-	forth push: a.	
-	forth push: d.
-	forth push: c.
+	a := forth pop asSigned32.	
+	b := forth pop asSigned32.
+	c := forth pop asSigned32.
+	d := forth pop asSigned32.
+	forth push: b asUnsigned4Bytes.
+	forth push: a asUnsigned4Bytes.	
+	forth push: d asUnsigned4Bytes.
+	forth push: c asUnsigned4Bytes.
 ]
 
 { #category : #accessing }

@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeAdd >> execute [ 
 
-	forth push: (forth pop + forth pop)
+	forth push: (forth pop asSigned32 + forth pop asSigned32) asUnsigned4Bytes 
 ]
 
 { #category : #accessing }

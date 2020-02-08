@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeExecute >> execute [ 
 
-	forth pcCurrent: forth pop.
+	forth pcCurrent: forth pop asUnsigned32.
 	forth pc: (forth wordAt: forth pcCurrent) - 1.
 
 ]

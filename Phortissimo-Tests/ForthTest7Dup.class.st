@@ -24,19 +24,3 @@ ForthTest7Dup >> test7Dup [
 	"forth inputBuffer addAll: ('dup' collect: #asciiValue as: Array)."
 	
 ]
-
-{ #category : #tests }
-ForthTest7Dup >> testHide [
-	self skip.
-	
-	forth pc: 1. "docol"
-	forth pcCurrent: (forth addressForLabel: 'HIDE').
-	forth pcNext: forth pcCurrent + forth wordSize.
-	forth inputBuffer addAll: ('dup' collect: #asciiValue as: Array).
-	forth step.
-	forth step.
-	forth step.
-	forth step.	
-	forth step.
-	forth step.	
-]

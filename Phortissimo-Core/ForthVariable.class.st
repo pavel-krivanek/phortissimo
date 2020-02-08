@@ -27,7 +27,7 @@ ForthVariable class >> on: aForth name: aName initialValue: aValue [
 { #category : #accessing }
 ForthVariable >> execute [ 
 
-	forth push: address
+	forth push: address asUnsigned4Bytes
 ]
 
 { #category : #accessing }

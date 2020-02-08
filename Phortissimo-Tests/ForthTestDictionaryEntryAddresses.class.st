@@ -13,7 +13,7 @@ ForthTestDictionaryEntryAddresses >> findCFA: wordLabel expect: codewordLabel [
 		
 	| expected cfaCode |
 	cfaCode := forth memory detect: [ :each | each class = ForthCodeTCFA ].
-	forth push: (forth addressForLabel: wordLabel).	
+	forth push: (forth addressForLabel: wordLabel) asUnsigned4Bytes.	
 	expected := forth addressForLabel: codewordLabel.
 	cfaCode execute.
 	
@@ -25,7 +25,7 @@ ForthTestDictionaryEntryAddresses >> findDFA: wordLabel expect: codewordLabel [
 		
 	| expected cfaCode |
 	cfaCode := forth memory detect: [ :each | each class = ForthCodeTDFA ].
-	forth push: (forth addressForLabel: wordLabel).	
+	forth push: (forth addressForLabel: wordLabel) asUnsigned4Bytes.	
 	expected := forth addressForLabel: codewordLabel.
 	cfaCode execute.
 	

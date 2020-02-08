@@ -39,7 +39,7 @@ ForthCodeWithHeadCompiled >> writeCodeAt: originalPosition [
 		| aValue |
 		labelOrNumber isNumber
 			ifTrue: [ 
-				forth writeWordSigned: labelOrNumber at: position. ]
+				forth writeWord: labelOrNumber at: position. ]
 			ifFalse: [ 
 				aValue := forth addressForLabel: labelOrNumber inFutureSet: position.
 				forth writeWord: aValue at: position. ].

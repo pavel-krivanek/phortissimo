@@ -222,6 +222,7 @@ ForthTestExtendedWords >> part1 [
 	[COMPILE] IF	\ continue by calling the normal IF
 ;
 
+
 \	COMMENTS ----------------------------------------------------------------------
 \
 \ FORTH allows ( ... ) as comments within function definitions.  This works by having an IMMEDIATE
@@ -254,7 +255,8 @@ ForthTestExtendedWords >> part1 [
 	( b a -- c )	means that the word uses two integers (a and b, where a is at the top of stack)
 				and returns a single integer (c).
 	( -- )		means the word has no effect on the stack
-)'
+)
+'
 ]
 
 { #category : #running }
@@ -1590,7 +1592,7 @@ ForthTestExtendedWords >> testIfThenElse [
 	: test2 0 if 42 then ;
 	: test3 1 if 42 else 32 then ;
 	: test4 0 if 42 else 32 then ;
-	test1 -2 test2 -2 test3 -2 test4 -2
+   test1 -2 test2 -2 test3 -2 test4 -2
 	'.
 	
 	forth run.
@@ -1664,7 +1666,7 @@ ForthTestExtendedWords >> testNip [
 	forth << self part1.
 
 	forth << '
-: NIP ( x y -- y ) SWAP DROP ;
+: NIP SWAP DROP ;
 	
 1 2 3 NIP
 	'.
@@ -1694,13 +1696,12 @@ ForthTestExtendedWords >> testNumbersPrinting [
 ForthTestExtendedWords >> testPick [
 
 	forth := ForthUppercase new init.
-	forth << self part1.
 
 	forth << '
-: PICK ( x_u ... x_1 x_0 u -- x_u ... x_1 x_0 x_u )
-   DSP@ SWAP -	( add to the stack pointer )
+: PICK 
+   DSP@ SWAP -  	
    2 -
-	@DSP	( and fetch )
+	@DSP	
 ;	
 1 2 6 3 4 5 3 PICK
 	'.

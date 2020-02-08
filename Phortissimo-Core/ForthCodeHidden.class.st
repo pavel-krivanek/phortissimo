@@ -9,7 +9,7 @@ ForthCodeHidden >> execute [
 
 	| entry |
 	
-	entry := forth pop.
+	entry := forth pop asUnsigned32.
 	forth toggleFlag: forth flagHidden of: entry
 ]
 

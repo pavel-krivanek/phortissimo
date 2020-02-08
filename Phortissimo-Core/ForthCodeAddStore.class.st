@@ -8,9 +8,9 @@ Class {
 ForthCodeAddStore >> execute [ 
 
 	| address increment |
-	address := forth pop.
-	increment := forth pop.
-	forth writeWord: (forth wordAt: address)+increment at: address 
+	address := forth pop asUnsigned32.
+	increment := forth pop asSigned32.
+	forth writeWord: (forth signedWordAt: address)+increment at: address 
 	
 ]
 

@@ -8,9 +8,9 @@ Class {
 ForthCodeEqu >> execute [ 
 
 	| a b |
-	a := forth pop.
-	b := forth pop.
-	forth push: (a = b) asBit
+	a := forth pop asSigned32.
+	b := forth pop asSigned32.
+	forth push: (a = b) asBit asUnsigned4Bytes
 ]
 
 { #category : #accessing }

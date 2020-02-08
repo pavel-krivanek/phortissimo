@@ -13,8 +13,8 @@ ForthCodeWord >> execute [
 	| addressLengthAssociation |
 	
 	addressLengthAssociation := forth privWord.
-	forth push: addressLengthAssociation key.
-	forth push: addressLengthAssociation value.
+	forth push: addressLengthAssociation key asUnsigned4Bytes.
+	forth push: addressLengthAssociation value asUnsigned4Bytes.
 	
 ]
 

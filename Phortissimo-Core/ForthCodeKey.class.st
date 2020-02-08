@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeKey >> execute [ 
 
-	forth push: forth inputBuffer removeFirst
+	forth push: forth inputBuffer removeFirst asUnsigned4Bytes
 ]
 
 { #category : #accessing }

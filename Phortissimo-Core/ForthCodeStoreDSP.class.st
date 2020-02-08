@@ -8,8 +8,8 @@ Class {
 ForthCodeStoreDSP >> execute [ 
 
 	| address value |
-	address := forth pop.
-	value := forth pop.
+	address := forth pop asUnsigned32.
+	value := forth pop asSigned32.
 	forth stack at: address put: value 
 	
 ]

@@ -9,12 +9,12 @@ ForthCodeNRot >> execute [
 
 	| a b c |
 	
-	a := forth pop.
-	b := forth pop.
-	c := forth pop.
-	forth push: a.
-	forth push: c.
-	forth push: b.
+	a := forth pop asSigned32.
+	b := forth pop asSigned32.
+	c := forth pop asSigned32.
+	forth push: a asUnsigned4Bytes.
+	forth push: c asUnsigned4Bytes.
+	forth push: b asUnsigned4Bytes.
 	
 ]
 

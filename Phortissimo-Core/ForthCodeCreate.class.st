@@ -9,8 +9,8 @@ ForthCodeCreate >> execute [
 
 	| length nameAddress header latest |
 	
-	length := forth pop.
-	nameAddress := forth pop.
+	length := forth pop asSigned32.
+	nameAddress := forth pop asUnsigned32.
 	header := forth varHereValue.
 	latest := forth varLatestValue.
 	forth writeWord: latest at: header.

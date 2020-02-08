@@ -21,7 +21,7 @@ ForthTestInterpreter >> setUp [
 { #category : #running }
 ForthTestInterpreter >> testColon [
 
-	forth push: 1.
+	forth push: 1 asUnsigned4Bytes.
 	forth << ': test dup ; test'.
 	forth run.
 	self assertStack: #(1 1).
@@ -41,7 +41,7 @@ ForthTestInterpreter >> testCompileNumber [
 ForthTestInterpreter >> testDrop [
 
 	forth << 'drop'.
-	forth push: 1.
+	forth push: 1 asUnsigned4Bytes.
 	forth run.
 	self assertStack: #().
 ]
@@ -50,7 +50,7 @@ ForthTestInterpreter >> testDrop [
 ForthTestInterpreter >> testDup [ 
 
 	forth << ' dup'.
-	forth push: 1.
+	forth push: 1 asUnsigned4Bytes.
 	forth run.
 	self assertStack: #(1 1).
 ]
@@ -59,7 +59,7 @@ ForthTestInterpreter >> testDup [
 ForthTestInterpreter >> testDupWithSpaceAfter [
 
 	forth << ' dup '.
-	forth push: 1.
+	forth push: 1 asUnsigned4Bytes.
 	forth run.
 	self assertStack: #(1 1).
 ]
@@ -68,7 +68,7 @@ ForthTestInterpreter >> testDupWithSpaceAfter [
 ForthTestInterpreter >> testDupWithSpaceBefore [ 
 
 	forth << ' dup'.
-	forth push: 1.
+	forth push: 1 asUnsigned4Bytes.
 	forth run.
 	self assertStack: #(1 1).
 ]
@@ -77,7 +77,7 @@ ForthTestInterpreter >> testDupWithSpaceBefore [
 ForthTestInterpreter >> testDupWithSpaceOnBothSides [
 
 	forth << ' dup '.
-	forth push: 1.
+	forth push: 1 asUnsigned4Bytes.
 	forth run.
 	self assertStack: #(1 1).
 ]
@@ -102,8 +102,8 @@ ForthTestInterpreter >> testPlus [
 ForthTestInterpreter >> testPlusWithPreparedStack [
 
 	forth << '+'.
-	forth push: 1.
-	forth push: 2.
+	forth push: 1 asUnsigned4Bytes.
+	forth push: 2 asUnsigned4Bytes.
 	forth run.
 	self assertStack: #(3).
 ]
@@ -112,7 +112,7 @@ ForthTestInterpreter >> testPlusWithPreparedStack [
 ForthTestInterpreter >> testTwoDups [
 
 	forth << 'dup dup'.
-	forth push: 1.
+	forth push: 1 asUnsigned4Bytes.
 	forth run.
 	self assertStack: #(1 1 1).
 ]

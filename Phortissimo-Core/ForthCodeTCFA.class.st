@@ -9,8 +9,8 @@ ForthCodeTCFA >> execute [
 
 	| wordAddress |
 	
-	wordAddress := forth pop.
-	forth push: (forth codewordOf: wordAddress)
+	wordAddress := forth pop asUnsigned32.
+	forth push: (forth codewordOf: wordAddress) asUnsigned4Bytes
 ]
 
 { #category : #accessing }

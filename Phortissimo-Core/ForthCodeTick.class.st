@@ -9,7 +9,7 @@ ForthCodeTick >> execute [
 
 	forth pcCurrent: (forth wordAt: forth pcNext).
 	forth pcNext: forth pcNext + forth wordSize.
-	forth push: forth pcCurrent
+	forth push: forth pcCurrent asUnsigned4Bytes
 ]
 
 { #category : #accessing }

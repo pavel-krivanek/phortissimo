@@ -8,8 +8,8 @@ Class {
 ForthCodeStore >> execute [ 
 
 	| address value |
-	address := forth pop.
-	value := forth pop.
+	address := forth pop asSigned32.
+	value := forth pop asSigned32.
 	forth writeWord: value at: address 
 	
 ]

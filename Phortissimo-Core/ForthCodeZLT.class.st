@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeZLT >> execute [ 
 
-	forth push: (forth pop < 0) asBit
+	forth push: (forth pop asSigned32  < 0) asBit asUnsigned4Bytes
 ]
 
 { #category : #accessing }

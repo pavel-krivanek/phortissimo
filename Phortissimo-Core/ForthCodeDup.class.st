@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeDup >> execute [ 
 
-	forth push: forth stack last.
+	forth push: forth peek
 
 ]
 

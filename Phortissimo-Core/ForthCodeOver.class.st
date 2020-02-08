@@ -7,7 +7,9 @@ Class {
 { #category : #accessing }
 ForthCodeOver >> execute [ 
 
-	forth push: (forth stack at: forth stack size - 1)
+	| size | 
+	size := forth stack size.
+	forth push: (forth stack copyFrom: size - 7 to: size - 4)
 
 ]
 

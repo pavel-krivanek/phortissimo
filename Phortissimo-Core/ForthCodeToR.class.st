@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeToR >> execute [ 
 
-	forth returnStack add: forth pop
+	forth returnStack addAll: forth pop
 ]
 
 { #category : #accessing }

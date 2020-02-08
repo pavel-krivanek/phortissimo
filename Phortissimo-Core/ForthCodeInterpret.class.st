@@ -56,7 +56,7 @@ ForthCodeInterpret >> execute [
 					forth pc: (forth wordAt: aCodeword) - 1 ]
 				ifTrue: [ 
 "5:"
-					forth push: numberErrorAssociation key.
+					forth push: numberErrorAssociation key asUnsigned4Bytes.
 					forth privNext ] 
 			 ]
 	

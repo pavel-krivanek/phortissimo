@@ -9,8 +9,8 @@ ForthCodeLitString >> execute [
 
 	forth pcCurrent: (forth wordAt: forth pcNext).
 	forth pcNext: forth pcNext + forth wordSize.
-	forth push: forth pcNext.
-	forth push: forth pcCurrent.
+	forth push: forth pcNext asUnsigned4Bytes.
+	forth push: forth pcCurrent asUnsigned4Bytes.
 	forth pcNext: (forth pcNext + forth pcCurrent).
 	
 ]
