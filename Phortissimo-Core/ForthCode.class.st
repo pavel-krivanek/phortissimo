@@ -36,7 +36,7 @@ ForthCode >> forth: anObject [
 ForthCode >> installAt: initialPosition [
 	
 	self installLabelAt: initialPosition.
-	forth memory at: initialPosition put: self.
+	forth memoryAt: initialPosition put: self.
 	^ initialPosition
 ]
 

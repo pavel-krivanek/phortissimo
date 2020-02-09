@@ -27,8 +27,8 @@ ForthTestFind >> setUp [
 
 	super setUp.
 	
-	wordCode := forth memory detect: [ :each | each class = ForthCodeWord ].
-	findCode := forth memory detect: [ :each | each class = ForthCodeFind ].
+	wordCode := forth addressOfCode: ForthCodeWord.
+	findCode := forth addressOfCode: ForthCodeFind.
 ]
 
 { #category : #tests }

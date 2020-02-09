@@ -8,8 +8,8 @@ Class {
 ForthCodeOver >> execute [ 
 
 	| size | 
-	size := forth stack size.
-	forth push: (forth stack copyFrom: size - 7 to: size - 4)
+	size := forth stackSize.
+	forth push: (forth stackCopyFrom: size - 7 to: size - 4)
 
 ]
 

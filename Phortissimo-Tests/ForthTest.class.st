@@ -10,7 +10,7 @@ Class {
 { #category : #running }
 ForthTest >> assertStack: aCollection [
 
-	self assertCollection: (aCollection flatCollect: #asUnsigned4Bytes) equals: forth stack asArray
+	self assertCollection: (aCollection flatCollect: #asUnsigned4Bytes) equals: forth stackAsArray
 ]
 
 { #category : #running }

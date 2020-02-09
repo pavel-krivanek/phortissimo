@@ -11,7 +11,7 @@ ForthCodeTell >> execute [
 	
 	length := forth pop asSigned32.
 	address := forth pop asUnsigned32.
-	text := forth memory copyFrom: address to: address+length-1.
+	text := forth memoryCopyFrom: address to: address+length-1.
 	forth outputBuffer addAllLast: text.
 ]
 

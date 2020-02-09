@@ -19,7 +19,7 @@ ForthCodeInterpret >> execute [
 		"empty input"
 		^ self].	
 	
-	toFind := forth memory copyFrom: address to: address + length - 1.
+	toFind := forth memoryCopyFrom: address to: address + length - 1.
 	resultOfFind := forth find: toFind.
 		
 	resultOfFind = 0 

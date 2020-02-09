@@ -46,7 +46,13 @@ Forth >> addressForLabel: aLabel inFutureSet: address [
 		0 ]
 ]
 
-{ #category : #initialization }
+{ #category : #memory }
+Forth >> addressOfCode: aCodeClass [
+
+	^ memory detect: [ :each | each class = aCodeClass ].
+]
+
+{ #category : #memory }
 Forth >> byteAt: address [ 
 
 	^ memory at: address
@@ -62,6 +68,12 @@ Forth >> codewordOf: dictionaryWordAddress [
 	length := self lengthByteAt: current.
 	
 	^ current + 1 + length
+]
+
+{ #category : #memory }
+Forth >> defineMemory [
+
+	memory := (1 to: self memorySize) collect: [ :each | nil ].
 ]
 
 { #category : #accessing }
@@ -136,7 +148,7 @@ Forth >> initPos: anObject [
 { #category : #initialization }
 Forth >> initialize [
 
-	memory := (1 to: 10*1024) collect: [ :each | nil ].
+	self defineMemory.
 	self resetStack.
 	returnStack := OrderedCollection new.
 	labels := Dictionary new.
@@ -201,7 +213,7 @@ Forth >> lastWord: anObject [
 { #category : #initialization }
 Forth >> lengthByteAt: address [ 
 
-	^ (memory at: address) bitAnd: self lengthMask
+	^ (self memoryAt: address) bitAnd: self lengthMask
 	
 
 ]
@@ -218,7 +230,7 @@ Forth >> match: nameArray at: address [
 	| length anArray |
 	length := self lengthByteAt: address + self wordSize.
 	length = nameArray size ifFalse: [ ^ false ].
-	anArray := self memory copyFrom: address + self wordSize + 1 to: address + self wordSize + nameArray size.
+	anArray := self memoryCopyFrom: address + self wordSize + 1 to: address + self wordSize + nameArray size.
 	^ nameArray = anArray
 	
 	
@@ -227,21 +239,40 @@ Forth >> match: nameArray at: address [
 	
 ]
 
-{ #category : #accessing }
-Forth >> memory [
+{ #category : #memory }
+Forth >> memoryAt: address [
 
-	^ memory
+	^ memory at: address
 ]
 
-{ #category : #accessing }
-Forth >> memory: anObject [
-	memory := anObject
+{ #category : #memory }
+Forth >> memoryAt: address put: anObject [
+
+	^ memory at: address put: anObject
+]
+
+{ #category : #memory }
+Forth >> memoryCopyFrom: start to: stop [ 
+
+	^ memory copyFrom: start to: stop 
 ]
 
 { #category : #initialization }
 Forth >> memoryInitializer [
 
 	^ ForthStandardMemoryInitializer for: self
+]
+
+{ #category : #memory }
+Forth >> memoryReset [
+
+	^ 1 to: memory size do: [ :i | memory at: i put: 0 ].
+]
+
+{ #category : #memory }
+Forth >> memorySize [
+
+	^ 10*1024
 ]
 
 { #category : #initialization }
@@ -305,12 +336,18 @@ Forth >> pop [
 ]
 
 { #category : #initialization }
+Forth >> pop: count [
+
+	^ (stack removeLast: count).
+]
+
+{ #category : #initialization }
 Forth >> popFromReturnStack [
 
 	^ returnStack removeLast: 4
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #memory }
 Forth >> printMemoryOn: aStream [
 
 	memory withIndexDo: [ :each :index |
@@ -346,7 +383,7 @@ Forth >> privNumber: wordStringAddress length: length [
 
 	base := self signedWordAt: (self addressForLabel: 'var_BASE').
 
-	aString := String withAll: ((self  memory copyFrom: wordStringAddress to: wordStringAddress + (length-1)) 
+	aString := String withAll: ((self  memoryCopyFrom: wordStringAddress to: wordStringAddress + (length-1)) 
 		withIndexCollect: [ :each :index | 		
 			((each >= 48 and: [ each < (48+base) ]) or: [ each = 45 "-" ])
 				ifFalse: [ ^ number -> index ].
@@ -376,7 +413,7 @@ Forth >> privWord [
 	] whileTrue.
 
 	[  | result |
-		self memory at: (self wordBufferAddress + length) put: characterCode.
+		self memoryAt: (self wordBufferAddress + length) put: characterCode.
 		length := length + 1.
 		result := self inputBuffer isEmpty 
 			ifFalse: [ 
@@ -449,10 +486,10 @@ Forth >> signedWordAt: address [
 
 	| unsigned |
 	
-	unsigned := ((memory at: address + 3)) +
-	  ((memory at: address + 2) <<  8) +
-	  ((memory at: address + 1) << 16) +
-	  ((memory at: address ) << 24).
+	unsigned := ((self memoryAt: address + 3)) +
+	  ((self memoryAt: address + 2) <<  8) +
+	  ((self memoryAt: address + 1) << 16) +
+	  ((self memoryAt: address ) << 24).
 		
 	^ unsigned asSigned32
 	
@@ -472,10 +509,40 @@ Forth >> stack: anObject [
 ]
 
 { #category : #initialization }
+Forth >> stackAsArray [
+
+	^ stack asArray
+]
+
+{ #category : #initialization }
+Forth >> stackAt: address [
+
+	^ stack at: address
+]
+
+{ #category : #initialization }
+Forth >> stackAt: address put: anObject [
+
+	^ stack at: address put: anObject
+]
+
+{ #category : #initialization }
+Forth >> stackCopyFrom: start to: end [
+
+	^ stack copyFrom: start to: end
+]
+
+{ #category : #initialization }
+Forth >> stackSize [
+
+	^ stack size
+]
+
+{ #category : #initialization }
 Forth >> step [ 
 
 	"('pc: ', pc asString, ' ', (self labels associations select: [ :e | e value = pc ]) asString)  traceCr."
-	(memory at: pc) execute.
+	(self memoryAt: pc) execute.
 	pc := pc + 1.
 ]
 
@@ -555,10 +622,10 @@ Forth >> varStateValue: aValue [
 { #category : #initialization }
 Forth >> wordAt: address [ 
 
-	^ ((memory at: address + 3)) +
-	  ((memory at: address + 2) <<  8) +
-	  ((memory at: address + 1) << 16) +
-	  ((memory at: address + 0) << 24) 
+	^ ((self memoryAt: address + 3)) +
+	  ((self memoryAt: address + 2) <<  8) +
+	  ((self memoryAt: address + 1) << 16) +
+	  ((self memoryAt: address + 0) << 24) 
 	
 
 
@@ -585,7 +652,7 @@ Forth >> wordSize [
 { #category : #initialization }
 Forth >> writeByte: aByte at: address [ 
 
-	memory at: address put: aByte
+	self memoryAt: address put: aByte
 	
 
 ]
@@ -593,7 +660,7 @@ Forth >> writeByte: aByte at: address [
 { #category : #initialization }
 Forth >> writeCode: aCode at: address [ 
 
-	memory at: address put: aCode
+	self memoryAt: address put: aCode
 	
 
 ]
@@ -607,10 +674,10 @@ Forth >> writeWord: aWord at: address [
 	
 	bytes := num asByteArrayOfSize: 4.
 
-	memory at: (address+0) put: (bytes at: 1).
-	memory at: (address+1) put: (bytes at: 2).
-	memory at: (address+2) put: (bytes at: 3).
-	memory at: (address+3) put: (bytes at: 4).
+	self memoryAt: (address+0) put: (bytes at: 1).
+	self memoryAt: (address+1) put: (bytes at: 2).
+	self memoryAt: (address+2) put: (bytes at: 3).
+	self memoryAt: (address+3) put: (bytes at: 4).
 	
 
 

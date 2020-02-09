@@ -8,7 +8,6 @@ Class {
 ForthTestInterpreter >> setUp [
 
 	forth := Forth new.
-	forth memory.
 
 	forth pc: 1. "docol" 
 	forth pcCurrent: (forth addressForLabel: 'codeword_QUIT').

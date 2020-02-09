@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeTwoDrop >> execute [ 
 
-	forth stack removeLast: 8
+	forth pop: 8
 ]
 
 { #category : #accessing }

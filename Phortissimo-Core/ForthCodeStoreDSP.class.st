@@ -10,7 +10,7 @@ ForthCodeStoreDSP >> execute [
 	| address value |
 	address := forth pop asUnsigned32.
 	value := forth pop asSigned32.
-	forth stack at: address put: value 
+	forth stackAt: address put: value 
 	
 ]
 

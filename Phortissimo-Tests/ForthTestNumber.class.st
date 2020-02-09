@@ -8,8 +8,8 @@ Class {
 ForthTestNumber >> testNumber [ 
 
 	| wordCode numberCode |
-	wordCode := forth memory detect: [ :each | each class = ForthCodeWord ].
-	numberCode := forth memory detect: [ :each | each class = ForthCodeNumber ].
+	wordCode := forth addressOfCode: ForthCodeWord.
+	numberCode := forth addressOfCode: ForthCodeNumber.
 		
 	forth << '1'.
 	wordCode execute.

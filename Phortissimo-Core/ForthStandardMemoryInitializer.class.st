@@ -195,7 +195,7 @@ ForthStandardMemoryInitializer >> initializeMemory [
 	
 	initPos := 1.
 	
-	1 to: forth memory size do: [ :i | forth memory at: i put: 0 ].
+	forth memoryReset.
 	
 	self addCode: (ForthCodeDoCol on: forth).
 	self addCode: (ForthCodeNext on: forth).
