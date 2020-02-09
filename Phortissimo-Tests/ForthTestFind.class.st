@@ -27,8 +27,8 @@ ForthTestFind >> setUp [
 
 	super setUp.
 	
-	wordCode := forth addressOfCode: ForthCodeWord.
-	findCode := forth addressOfCode: ForthCodeFind.
+	wordCode := forth detectCode: ForthCodeWord.
+	findCode := forth detectCode: ForthCodeFind.
 ]
 
 { #category : #tests }

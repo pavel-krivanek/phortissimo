@@ -2,7 +2,7 @@ Class {
 	#name : #ForthMemory,
 	#superclass : #Object,
 	#instVars : [
-		'memory',
+		'segments',
 		'stack',
 		'returnStack',
 		'forth'
@@ -11,23 +11,23 @@ Class {
 }
 
 { #category : #memory }
-ForthMemory >> addressOfCode: aCodeClass [
-
-	^ memory detect: [ :each | each class = aCodeClass ].
-]
-
-{ #category : #memory }
 ForthMemory >> byteAt: address [ 
 
-	^ memory at: address
-	
-
+	^ self memoryAt: address
 ]
 
 { #category : #memory }
-ForthMemory >> defineMemory [
+ForthMemory >> detectCode: aCodeClass [
 
-	memory := (1 to: self memorySize) collect: [ :each | nil ].
+	1 to: self memorySize do: [ :index |
+		| value |
+		((value := self memoryAt: index) class = aCodeClass) ifTrue: [ ^ value ] ].
+]
+
+{ #category : #memory }
+ForthMemory >> ensureSegmentOf: address [ 
+
+	^ segments at: (self segmentIdOf: address) ifAbsentPut: [ self newSegment ].
 ]
 
 { #category : #accessing }
@@ -43,7 +43,7 @@ ForthMemory >> forth: anObject [
 { #category : #memory }
 ForthMemory >> initialize [ 
 
-	memory := (1 to: self memorySize) collect: [ :each | nil ].
+	self memoryReset.
 	
 	self resetStack.
 	
@@ -55,33 +55,53 @@ ForthMemory >> initialize [
 ]
 
 { #category : #memory }
-ForthMemory >> memoryAt: address [
+ForthMemory >> memoryAt: address [ 
 
-	^ memory at: address
+	| segment |
+	segment := self segmentOf: address.
+	segment ifNil: [ ^ 0 ].
+	^ segment at: (self offsetOf: address)+1
+
 ]
 
 { #category : #memory }
 ForthMemory >> memoryAt: address put: anObject [
 
-	^ memory at: address put: anObject
+	^ (self ensureSegmentOf: address) at: (self offsetOf: address)+1 put: anObject
 ]
 
 { #category : #memory }
 ForthMemory >> memoryCopyFrom: start to: stop [ 
 
-	^ memory copyFrom: start to: stop 
+	| result |
+	result := Array ofSize: (stop-start+1).
+	start to: stop do: [ :i | 
+		result at: i-start+1 put: (self memoryAt: i) ].
+	^ result
 ]
 
 { #category : #memory }
 ForthMemory >> memoryReset [
 
-	^ 1 to: memory size do: [ :i | memory at: i put: 0 ].
+	^ segments := IdentityDictionary new
 ]
 
 { #category : #memory }
 ForthMemory >> memorySize [
 
 	^ 10*1024
+]
+
+{ #category : #memory }
+ForthMemory >> newSegment [
+
+	^ Array ofSize: 16rFFF+1
+]
+
+{ #category : #memory }
+ForthMemory >> offsetOf: address [ 
+
+	^ address bitAnd: 16rFFF
 ]
 
 { #category : #memory }
@@ -156,6 +176,19 @@ ForthMemory >> returnStackPush: anArray [
 ForthMemory >> returnStackSize [
 
 	^ returnStack size
+]
+
+{ #category : #memory }
+ForthMemory >> segmentIdOf: address [ 
+
+	^ address bitAnd: 16rFFFFF000.	
+
+]
+
+{ #category : #memory }
+ForthMemory >> segmentOf: address [ 
+
+	^ segments at: (self segmentIdOf: address) ifAbsent: nil
 ]
 
 { #category : #memory }

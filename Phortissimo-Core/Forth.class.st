@@ -47,12 +47,6 @@ Forth >> addressForLabel: aLabel inFutureSet: address [
 ]
 
 { #category : #memory }
-Forth >> addressOfCode: aCodeClass [
-
-	^ memory addressOfCode: aCodeClass
-]
-
-{ #category : #memory }
 Forth >> byteAt: address [ 
 
 	^ memory byteAt: address 
@@ -66,6 +60,12 @@ Forth >> codewordOf: dictionaryWordAddress [
 	length := self lengthByteAt: current.
 	
 	^ current + 1 + length
+]
+
+{ #category : #memory }
+Forth >> detectCode: aCodeClass [
+
+	^ memory detectCode: aCodeClass
 ]
 
 { #category : #accessing }
