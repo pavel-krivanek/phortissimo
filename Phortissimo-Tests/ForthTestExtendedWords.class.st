@@ -265,10 +265,11 @@ ForthTestExtendedWords >> part2 [
 	^ '( Some more complicated stack examples, showing the stack notation. )
 : NIP ( x y -- y ) SWAP DROP ;
 : TUCK ( x y -- y x y ) SWAP OVER ;
-: PICK ( x_u ... x_1 x_0 u -- x_u ... x_1 x_0 x_u )
-   DSP@ SWAP -	
-   2 -
-	@DSP	
+: PICK 
+	1+	
+	4 *		
+	DSP@ +
+	@DSP    
 ;
 
 ( With the looping constructs, we can now write SPACES, which writes n spaces to stdout. )
@@ -1436,12 +1437,12 @@ ForthTestExtendedWords >> testConstantsAndVariables [
 ForthTestExtendedWords >> testDSPStore [
 
 	forth := ForthUppercase new init.
-	forth << '1 4 DSP!'.
+	forth << '1 -17 DSP!'. "-17 = 4 words on stack"
 	forth run.
 	self assertStack: #(1 0 0 0).
 	
 	forth := ForthUppercase new init.
-	forth << '1 2 3 4 5 2 DSP!'.
+	forth << '1 2 3 4 5 -9 DSP!'. "-9 = 2 words on stack"
 	forth run.
 	self assertStack: #(1 2)
 
@@ -1455,7 +1456,8 @@ ForthTestExtendedWords >> testDepth [
 
 	forth << ';
 : DEPTH
-	DSP@ S0 @ -
+	S0 @ DSP@ -
+	4-		
 ;
 
 	
@@ -1463,7 +1465,7 @@ ForthTestExtendedWords >> testDepth [
 	'.
 	
 	forth run.
-	self assertStack: #(1 2 3 3)
+	self assertStack: #(1 2 3 12)
 
 ]
 
@@ -1505,19 +1507,15 @@ ForthTestExtendedWords >> testDotS [
 	EMIT
 ;
 
-: .S		
-	S0 @ 		
-	DSP@ 
-	2 -
+: .S		( -- )
+	DSP@		( get current stack pointer )
 	BEGIN
-		2DUP <=
+		DUP S0 @ <
 	WHILE
-		SWAP DUP @DSP U.	( print the stack element )
+		DUP @DSP U.	( print the stack element )
 		SPACE
-		1+		( move up )
-		SWAP
+		4+		( move up )
 	REPEAT
-	DROP
 	DROP
 ;
 
@@ -1526,7 +1524,17 @@ ForthTestExtendedWords >> testDotS [
 	
 	forth run.
 	self assertStack: #(1 2 3 4).
-	self assertCollection: (String withAll: forth outputBuffer asByteArray) equals: '1 2 3 4 '
+	self assertCollection: (String withAll: forth outputBuffer asByteArray) equals: '4 3 2 1 '
+
+]
+
+{ #category : #running }
+ForthTestExtendedWords >> testDsp [
+
+	forth << 'dsp@ 1 dsp@ '.
+	
+	forth run.
+	self assertStack: #(-1 1 -9).
 
 ]
 
@@ -1699,15 +1707,16 @@ ForthTestExtendedWords >> testPick [
 
 	forth << '
 : PICK 
-   DSP@ SWAP -  	
-   2 -
-	@DSP	
-;	
-1 2 6 3 4 5 3 PICK
+	1+	
+	4 *		
+	DSP@ +
+	@DSP    
+;
+1 2 258 3 4 5 3 PICK
 	'.
 	
 	forth run.
-	self assertStack: #(1 2 6 3 4 5 6)
+	self assertStack: #(1 2 258 3 4 5 258)
 
 ]
 

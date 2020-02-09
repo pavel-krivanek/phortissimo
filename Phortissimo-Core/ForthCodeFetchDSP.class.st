@@ -8,7 +8,7 @@ Class {
 ForthCodeFetchDSP >> execute [ 
 
 	| address |
-	address := (forth pop asUnsigned32 - 1) * 4 + 1.
+	address := 16rFFFFFFFF-(forth pop asUnsigned32)-3.
 	forth push: (forth stack copyFrom: address to: address + 3).
 ]
 

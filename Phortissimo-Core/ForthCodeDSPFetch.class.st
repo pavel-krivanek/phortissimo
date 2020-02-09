@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeDSPFetch >> execute [ 
 
-	forth push: ((forth stack size + 4) // 4) asUnsigned4Bytes
+	forth push: (16rFFFFFFFF - (forth stack size)) asUnsigned4Bytes
 ]
 
 { #category : #accessing }
