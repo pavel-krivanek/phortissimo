@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeRSPFetch >> execute [ 
 
-	forth push: (forth returnStack size // 4) asUnsigned4Bytes
+	forth push: (forth returnStackSize // 4) asUnsigned4Bytes
 ]
 
 { #category : #accessing }

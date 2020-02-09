@@ -49,15 +49,13 @@ Forth >> addressForLabel: aLabel inFutureSet: address [
 { #category : #memory }
 Forth >> addressOfCode: aCodeClass [
 
-	^ memory detect: [ :each | each class = aCodeClass ].
+	^ memory addressOfCode: aCodeClass
 ]
 
 { #category : #memory }
 Forth >> byteAt: address [ 
 
-	^ memory at: address
-	
-
+	^ memory byteAt: address 
 ]
 
 { #category : #'as yet unclassified' }
@@ -68,12 +66,6 @@ Forth >> codewordOf: dictionaryWordAddress [
 	length := self lengthByteAt: current.
 	
 	^ current + 1 + length
-]
-
-{ #category : #memory }
-Forth >> defineMemory [
-
-	memory := (1 to: self memorySize) collect: [ :each | nil ].
 ]
 
 { #category : #accessing }
@@ -148,9 +140,7 @@ Forth >> initPos: anObject [
 { #category : #initialization }
 Forth >> initialize [
 
-	self defineMemory.
-	self resetStack.
-	returnStack := OrderedCollection new.
+	memory := ForthMemory new forth: self.
 	labels := Dictionary new.
 	unknownLabels := Dictionary new.
 	lastWord := 0.
@@ -242,19 +232,20 @@ Forth >> match: nameArray at: address [
 { #category : #memory }
 Forth >> memoryAt: address [
 
-	^ memory at: address
+	^ memory memoryAt: address
+
 ]
 
 { #category : #memory }
 Forth >> memoryAt: address put: anObject [
 
-	^ memory at: address put: anObject
+	^ memory memoryAt: address put: anObject
 ]
 
 { #category : #memory }
 Forth >> memoryCopyFrom: start to: stop [ 
 
-	^ memory copyFrom: start to: stop 
+	^ memory memoryCopyFrom: start to: stop 
 ]
 
 { #category : #initialization }
@@ -266,13 +257,13 @@ Forth >> memoryInitializer [
 { #category : #memory }
 Forth >> memoryReset [
 
-	^ 1 to: memory size do: [ :i | memory at: i put: 0 ].
+	^ memory memoryReset
 ]
 
 { #category : #memory }
 Forth >> memorySize [
 
-	^ 10*1024
+	^ memory memorySize
 ]
 
 { #category : #initialization }
@@ -320,44 +311,37 @@ Forth >> pcNext: anObject [
 { #category : #initialization }
 Forth >> peek [
 
-	^ stack last: 4.
+	^ memory peek
 ]
 
 { #category : #initialization }
 Forth >> peekReturnStack [
 
-	^ returnStack last: 4.
+	^ memory peekReturnStack
 ]
 
 { #category : #initialization }
 Forth >> pop [
 
-	^ (stack removeLast: 4).
+	^ memory pop
 ]
 
 { #category : #initialization }
 Forth >> pop: count [
 
-	^ (stack removeLast: count).
+	^ memory pop: count
 ]
 
 { #category : #initialization }
 Forth >> popFromReturnStack [
 
-	^ returnStack removeLast: 4
+	^ memory popFromReturnStack
 ]
 
 { #category : #memory }
 Forth >> printMemoryOn: aStream [
 
-	memory withIndexDo: [ :each :index |
-		index printOn: aStream  base: 10 length: 6 padded: false.
-		aStream space.
-		(self labelsFor: index) ifNotEmpty: [ :cellLabels |
-			aStream << (cellLabels joinUsing: String space) << ':' ; cr; << '       ' ].
-		aStream tab; tab.
-		each printOn: aStream. aStream cr] 
-		 
+	^ memory printMemoryOn: aStream
 ]
 
 { #category : #'as yet unclassified' }
@@ -442,14 +426,13 @@ Forth >> privWord [
 { #category : #initialization }
 Forth >> push: bytes [
 
-	stack addAll: bytes.
-	^ bytes
+	^ memory push: bytes
 ]
 
 { #category : #initialization }
 Forth >> pushToReturnStack: address [ 
 
-	returnStack addAll: address asUnsigned4Bytes 
+	^ memory pushToReturnStack: address 
 ]
 
 { #category : #accessing }
@@ -461,18 +444,25 @@ Forth >> registerUnknownLabel: aLabel usageAtPosition: address [
 { #category : #initialization }
 Forth >> resetStack [
 
-	stack := OrderedCollection new.
+	memory resetStack
 ]
 
 { #category : #initialization }
 Forth >> returnStack [ 
 
-	^ returnStack
+	^ memory returnStack
 ]
 
-{ #category : #accessing }
-Forth >> returnStack: anObject [
-	returnStack := anObject
+{ #category : #initialization }
+Forth >> returnStackPush: anArray [
+
+	^ memory returnStackPush: anArray
+]
+
+{ #category : #initialization }
+Forth >> returnStackSize [
+
+	^ memory returnStackSize
 ]
 
 { #category : #initialization }
@@ -500,42 +490,43 @@ Forth >> signedWordAt: address [
 { #category : #initialization }
 Forth >> stack [ 
 
-	^ stack
+	^ memory stack
 ]
 
 { #category : #accessing }
 Forth >> stack: anObject [
-	stack := anObject
+
+	^ memory stack: anObject
 ]
 
 { #category : #initialization }
 Forth >> stackAsArray [
 
-	^ stack asArray
+	^ memory stackAsArray
 ]
 
 { #category : #initialization }
 Forth >> stackAt: address [
 
-	^ stack at: address
+	^ memory stackAt: address
 ]
 
 { #category : #initialization }
 Forth >> stackAt: address put: anObject [
 
-	^ stack at: address put: anObject
+	^ memory stackAt: address put: anObject
 ]
 
 { #category : #initialization }
 Forth >> stackCopyFrom: start to: end [
 
-	^ stack copyFrom: start to: end
+	^ memory stackCopyFrom: start to: end
 ]
 
 { #category : #initialization }
 Forth >> stackSize [
 
-	^ stack size
+	^ memory stackSize
 ]
 
 { #category : #initialization }
