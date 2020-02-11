@@ -269,7 +269,7 @@ ForthTestExtendedWords >> part2 [
 	1+	
 	4 *		
 	DSP@ +
-	@DSP    
+	@   
 ;
 
 ( With the looping constructs, we can now write SPACES, which writes n spaces to stdout. )
@@ -1437,7 +1437,7 @@ ForthTestExtendedWords >> testConstantsAndVariables [
 ForthTestExtendedWords >> testDSPStore [
 
 	forth := ForthUppercase new init.
-	forth << '1 -17 DSP!'. "-17 = 4 words on stack"
+	forth << '1 -20 DSP!'. "-17 = 4 words on stack"
 	forth run.
 	self assertStack: #(1 0 0 0).
 	
@@ -1512,7 +1512,7 @@ ForthTestExtendedWords >> testDotS [
 	BEGIN
 		DUP S0 @ <
 	WHILE
-		DUP @DSP U.	( print the stack element )
+		DUP @ U.	( print the stack element )
 		SPACE
 		4+		( move up )
 	REPEAT
@@ -1534,7 +1534,7 @@ ForthTestExtendedWords >> testDsp [
 	forth << 'dsp@ 1 dsp@ '.
 	
 	forth run.
-	self assertStack: #(-1 1 -9).
+	self assertStack: #(-4 1 -12).
 
 ]
 
@@ -1710,7 +1710,7 @@ ForthTestExtendedWords >> testPick [
 	1+	
 	4 *		
 	DSP@ +
-	@DSP    
+	@    
 ;
 1 2 258 3 4 5 3 PICK
 	'.

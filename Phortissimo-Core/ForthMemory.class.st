@@ -3,7 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'segments',
-		'stack',
+		'dsp',
 		'returnStack',
 		'forth'
 	],
@@ -22,6 +22,18 @@ ForthMemory >> detectCode: aCodeClass [
 	1 to: self memorySize do: [ :index |
 		| value |
 		((value := self memoryAt: index) class = aCodeClass) ifTrue: [ ^ value ] ].
+]
+
+{ #category : #memory }
+ForthMemory >> dsp [
+
+	^ dsp
+]
+
+{ #category : #memory }
+ForthMemory >> dsp: anAddress [
+
+	dsp := anAddress
 ]
 
 { #category : #memory }
@@ -107,7 +119,7 @@ ForthMemory >> offsetOf: address [
 { #category : #memory }
 ForthMemory >> peek [
 
-	^ stack last: 4.
+	^ self memoryCopyFrom: dsp to: dsp+3.
 ]
 
 { #category : #memory }
@@ -119,13 +131,16 @@ ForthMemory >> peekReturnStack [
 { #category : #memory }
 ForthMemory >> pop [
 
-	^ (stack removeLast: 4).
+	^ self pop: 4
 ]
 
 { #category : #memory }
 ForthMemory >> pop: count [
 
-	^ (stack removeLast: count).
+	| result | 
+	result := self memoryCopyFrom: dsp to: dsp+count-1.
+	dsp := dsp + count.
+	^ result
 ]
 
 { #category : #memory }
@@ -150,7 +165,9 @@ ForthMemory >> printMemoryOn: aStream [
 { #category : #memory }
 ForthMemory >> push: bytes [
 
-	stack addAll: bytes.
+	dsp := dsp - 4.
+	bytes withIndexDo: [ :each :index |
+		self memoryAt: dsp+index-1 put: each ].
 	^ bytes
 ]
 
@@ -163,7 +180,7 @@ ForthMemory >> pushToReturnStack: address [
 { #category : #memory }
 ForthMemory >> resetStack [
 
-	stack := OrderedCollection new.
+	dsp := self s0.
 ]
 
 { #category : #memory }
@@ -176,6 +193,12 @@ ForthMemory >> returnStackPush: anArray [
 ForthMemory >> returnStackSize [
 
 	^ returnStack size
+]
+
+{ #category : #memory }
+ForthMemory >> s0 [
+
+	^ 16rFFFFFFFC
 ]
 
 { #category : #memory }
@@ -192,42 +215,19 @@ ForthMemory >> segmentOf: address [
 ]
 
 { #category : #memory }
-ForthMemory >> stack [ 
-
-	^ stack
-]
-
-{ #category : #memory }
-ForthMemory >> stack: anObject [
-	stack := anObject
-]
-
-{ #category : #memory }
 ForthMemory >> stackAsArray [
 
-	^ stack asArray
+	^ ((self memoryCopyFrom: dsp to: self s0-1) groupsOf: 4 atATimeCollect: [ :x | x ]) reversed flatCollect: #yourself
 ]
 
 { #category : #memory }
-ForthMemory >> stackAt: address [
+ForthMemory >> stackAsUnsignedArray [
 
-	^ stack at: address
-]
-
-{ #category : #memory }
-ForthMemory >> stackAt: address put: anObject [
-
-	^ stack at: address put: anObject
-]
-
-{ #category : #memory }
-ForthMemory >> stackCopyFrom: start to: end [
-
-	^ stack copyFrom: start to: end
+	^ ((self memoryCopyFrom: dsp to: self s0-1) groupsOf: 4 atATimeCollect: [ :x | x asUnsigned32 ]) reversed 
 ]
 
 { #category : #memory }
 ForthMemory >> stackSize [
 
-	^ stack size
+	^ dsp - self s0
 ]

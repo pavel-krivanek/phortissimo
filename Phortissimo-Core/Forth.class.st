@@ -68,6 +68,12 @@ Forth >> detectCode: aCodeClass [
 	^ memory detectCode: aCodeClass
 ]
 
+{ #category : #initialization }
+Forth >> dsp [
+
+	^ self memory dsp
+]
+
 { #category : #accessing }
 Forth >> find: nameArray [
 
@@ -227,6 +233,12 @@ Forth >> match: nameArray at: address [
 	
 	
 	
+]
+
+{ #category : #accessing }
+Forth >> memory [ 
+
+	^ memory
 ]
 
 { #category : #memory }
@@ -471,6 +483,12 @@ Forth >> run [
 	[ state = #running ] whileTrue: [ self step ]
 ]
 
+{ #category : #'as yet unclassified' }
+Forth >> s0 [
+
+	^ memory s0
+]
+
 { #category : #initialization }
 Forth >> signedWordAt: address [ 
 
@@ -488,39 +506,9 @@ Forth >> signedWordAt: address [
 ]
 
 { #category : #initialization }
-Forth >> stack [ 
-
-	^ memory stack
-]
-
-{ #category : #accessing }
-Forth >> stack: anObject [
-
-	^ memory stack: anObject
-]
-
-{ #category : #initialization }
 Forth >> stackAsArray [
 
 	^ memory stackAsArray
-]
-
-{ #category : #initialization }
-Forth >> stackAt: address [
-
-	^ memory stackAt: address
-]
-
-{ #category : #initialization }
-Forth >> stackAt: address put: anObject [
-
-	^ memory stackAt: address put: anObject
-]
-
-{ #category : #initialization }
-Forth >> stackCopyFrom: start to: end [
-
-	^ memory stackCopyFrom: start to: end
 ]
 
 { #category : #initialization }

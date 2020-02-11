@@ -9,8 +9,8 @@ ForthCodeTwoDup >> execute [
 
 	| size a b |
 	size := forth stackSize.
-	a := forth stackCopyFrom: size - 7 to: size - 4.
-	b := forth stackCopyFrom: size - 3 to: size.
+	a := forth memoryCopyFrom: forth dsp + 4 to: forth dsp + 7.
+	b := forth memoryCopyFrom: forth dsp + 0 to: forth dsp + 3.
 
 	forth push: a.
 	forth push: b.

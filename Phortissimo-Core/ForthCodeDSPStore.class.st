@@ -7,12 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeDSPStore >> execute [ 
 
-	| requestedSize newStack address |
-	address := forth pop asUnsigned32.
-	requestedSize := 16rFFFFFFFF - address.
-	newStack := OrderedCollection new: requestedSize withAll: 0.
-	1 to: (requestedSize min: forth stackSize) do: [ :i | newStack at: i put: (forth stackAt: i) ].
-	forth stack: newStack.
+	forth memory dsp: forth pop asUnsigned32
 ]
 
 { #category : #accessing }
