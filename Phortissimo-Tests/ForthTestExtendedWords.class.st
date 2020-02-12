@@ -1439,10 +1439,11 @@ ForthTestExtendedWords >> testDSPStore [
 	forth := ForthUppercase new init.
 	forth << '1 -20 DSP!'. "-17 = 4 words on stack"
 	forth run.
-	self assertStack: #(1 0 0 0).
+	self assert: forth stackSize equals: 16.
+	self assertCollection: (forth stackAsArray first: 4) hasSameElements: 1 asUnsigned4Bytes.
 	
 	forth := ForthUppercase new init.
-	forth << '1 2 3 4 5 -9 DSP!'. "-9 = 2 words on stack"
+	forth << '1 2 3 4 5 -12 DSP!'. "-9 = 2 words on stack"
 	forth run.
 	self assertStack: #(1 2)
 

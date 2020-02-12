@@ -107,7 +107,7 @@ ForthMemory >> memorySize [
 { #category : #memory }
 ForthMemory >> newSegment [
 
-	^ Array ofSize: 16rFFF+1
+	^ Array new: 16rFFF+1 withAll: 0
 ]
 
 { #category : #memory }
@@ -229,5 +229,5 @@ ForthMemory >> stackAsUnsignedArray [
 { #category : #memory }
 ForthMemory >> stackSize [
 
-	^ dsp - self s0
+	^ self s0 - dsp
 ]
