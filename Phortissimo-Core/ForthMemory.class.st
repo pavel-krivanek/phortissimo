@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'segments',
 		'dsp',
-		'returnStack',
+		'rsp',
 		'forth'
 	],
 	#category : #'Phortissimo-Core-Basic'
@@ -59,8 +59,7 @@ ForthMemory >> initialize [
 	
 	self resetStack.
 	
-	returnStack := OrderedCollection new.
-
+	rsp := self r0.
 
 
 
@@ -125,7 +124,7 @@ ForthMemory >> peek [
 { #category : #memory }
 ForthMemory >> peekReturnStack [
 
-	^ returnStack last: 4.
+	^ self memoryCopyFrom: rsp to: rsp+3.
 ]
 
 { #category : #memory }
@@ -146,7 +145,10 @@ ForthMemory >> pop: count [
 { #category : #memory }
 ForthMemory >> popFromReturnStack [
 
-	^ returnStack removeLast: 4
+	| result | 
+	result := self memoryCopyFrom: rsp to: rsp+3.
+	rsp := rsp - 4.
+	^ result
 ]
 
 { #category : #memory }
@@ -174,7 +176,18 @@ ForthMemory >> push: bytes [
 { #category : #memory }
 ForthMemory >> pushToReturnStack: address [ 
 
-	returnStack addAll: address asUnsigned4Bytes 
+	| bytes | 
+	bytes := address asUnsigned4Bytes.
+	rsp := rsp + 4.
+	bytes withIndexDo: [ :each :index |
+		self memoryAt: rsp+index-1 put: each ].
+	^ bytes
+]
+
+{ #category : #memory }
+ForthMemory >> r0 [
+
+	^ self s0 + 3
 ]
 
 { #category : #memory }
@@ -184,21 +197,25 @@ ForthMemory >> resetStack [
 ]
 
 { #category : #memory }
-ForthMemory >> returnStackPush: anArray [
+ForthMemory >> returnStackPush: bytes [
 
-	^ returnStack addAll: anArray
+	rsp := rsp + 4.
+	bytes withIndexDo: [ :each :index |
+		self memoryAt: rsp+index-1 put: each ].
+	^ bytes
 ]
 
 { #category : #memory }
 ForthMemory >> returnStackSize [
 
-	^ returnStack size
+	^ dsp - self r0
 ]
 
 { #category : #memory }
 ForthMemory >> s0 [
 
-	^ 16rFFFFFFFC
+	^ 16rEFFFFFFC
+	
 ]
 
 { #category : #memory }

@@ -1437,13 +1437,13 @@ ForthTestExtendedWords >> testConstantsAndVariables [
 ForthTestExtendedWords >> testDSPStore [
 
 	forth := ForthUppercase new init.
-	forth << '1 -20 DSP!'. "-17 = 4 words on stack"
+	forth << ('1 ', (forth s0 asSigned32 - 16) asString, ' DSP!'). 
 	forth run.
 	self assert: forth stackSize equals: 16.
 	self assertCollection: (forth stackAsArray first: 4) hasSameElements: 1 asUnsigned4Bytes.
 	
 	forth := ForthUppercase new init.
-	forth << '1 2 3 4 5 -12 DSP!'. "-9 = 2 words on stack"
+	forth << ('1 2 3 4 5 ', (forth s0 asSigned32 - 8) asString, ' DSP!').
 	forth run.
 	self assertStack: #(1 2)
 
@@ -1535,7 +1535,7 @@ ForthTestExtendedWords >> testDsp [
 	forth << 'dsp@ 1 dsp@ '.
 	
 	forth run.
-	self assertStack: #(-4 1 -12).
+	self assertStack: {forth s0 asSigned32.  1. forth s0 asSigned32 - 8}.
 
 ]
 
