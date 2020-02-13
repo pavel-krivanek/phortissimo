@@ -70,6 +70,7 @@ ForthStandardMemoryInitializer >> initializeBuitInVarialbes [
 	self addCode: (ForthVariable on: forth name: 'here').
 	self addCode: (ForthVariable on: forth name: 'latest' initialValue: nil).
 	self addCode: (ForthVariable on: forth name: 's0' initialValue: forth s0).
+	self addCode: (ForthVariable on: forth name: 'r0' initialValue: forth memory r0).
 	self addCode: (ForthVariable on: forth name: 'base' initialValue: 10).
 ]
 

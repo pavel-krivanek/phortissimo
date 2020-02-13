@@ -152,19 +152,6 @@ ForthMemory >> popFromReturnStack [
 ]
 
 { #category : #memory }
-ForthMemory >> printMemoryOn: aStream [
-
-	memory withIndexDo: [ :each :index |
-		index printOn: aStream  base: 10 length: 6 padded: false.
-		aStream space.
-		(self forth labelsFor: index) ifNotEmpty: [ :cellLabels |
-			aStream << (cellLabels joinUsing: String space) << ':' ; cr; << '       ' ].
-		aStream tab; tab.
-		each printOn: aStream. aStream cr] 
-		 
-]
-
-{ #category : #memory }
 ForthMemory >> push: bytes [
 
 	dsp := dsp - 4.

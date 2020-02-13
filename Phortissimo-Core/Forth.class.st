@@ -350,12 +350,6 @@ Forth >> popFromReturnStack [
 	^ memory popFromReturnStack
 ]
 
-{ #category : #memory }
-Forth >> printMemoryOn: aStream [
-
-	^ memory printMemoryOn: aStream
-]
-
 { #category : #'as yet unclassified' }
 Forth >> privComma: value [
 
