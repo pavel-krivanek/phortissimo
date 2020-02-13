@@ -225,6 +225,12 @@ ForthMemory >> stackAsArray [
 ]
 
 { #category : #memory }
+ForthMemory >> stackAsSignedArray [
+
+	^ ((self memoryCopyFrom: dsp to: self s0-1) groupsOf: 4 atATimeCollect: [ :x | x asSigned32 ]) reversed 
+]
+
+{ #category : #memory }
 ForthMemory >> stackAsUnsignedArray [
 
 	^ ((self memoryCopyFrom: dsp to: self s0-1) groupsOf: 4 atATimeCollect: [ :x | x asUnsigned32 ]) reversed 

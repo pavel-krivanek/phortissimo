@@ -220,6 +220,12 @@ Forth >> lengthMask [
 	^ 16r1F
 ]
 
+{ #category : #'as yet unclassified' }
+Forth >> loadStd [
+
+	self << (self class package mcWorkingCopy ancestry ancestors first package repository location / 'src-forth' / 'std.f') readStream upToEnd.
+]
+
 { #category : #accessing }
 Forth >> match: nameArray at: address [
 
@@ -288,6 +294,12 @@ Forth >> noInput [
 Forth >> outputBuffer [
 
 	^ outputBuffer 
+]
+
+{ #category : #'as yet unclassified' }
+Forth >> outputBufferString [
+
+	^ String withAll: self outputBuffer asByteArray
 ]
 
 { #category : #accessing }
@@ -369,13 +381,17 @@ Forth >> privNext [
 { #category : #'as yet unclassified' }
 Forth >> privNumber: wordStringAddress length: length [
 
-	| aString base number |
-
+	| aString base number allowed |
+	
 	base := self signedWordAt: (self addressForLabel: 'var_BASE').
+
+	allowed := base <= 10 
+		ifTrue: [ #(45), (48 to: 48-1+base) ]
+		ifFalse: [ #(45), (48 to: 57), (65 to: 65+base-11), (97 to: 97+base-11) ].
 
 	aString := String withAll: ((self  memoryCopyFrom: wordStringAddress to: wordStringAddress + (length-1)) 
 		withIndexCollect: [ :each :index | 		
-			((each >= 48 and: [ each < (48+base) ]) or: [ each = 45 "-" ])
+			(allowed includes: each)
 				ifFalse: [ ^ number -> index ].
 			Character value: each ]).
 	
@@ -391,7 +407,6 @@ Forth >> privWord [
 	| length character characterCode|
 	
 	length := 0.
-	
 	
 	[  self inputBuffer isEmpty ifTrue: [ 
 			self noInput.

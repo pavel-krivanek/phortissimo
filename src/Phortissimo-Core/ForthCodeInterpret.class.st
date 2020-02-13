@@ -29,7 +29,6 @@ ForthCodeInterpret >> execute [
 			(forth isImmediate: resultOfFind) 
 				ifTrue: [ executeImmediate := true ]
 		] ifTrue: [
-			"1:"
 			"Not in the dictionary (not a word) so assume it's a literal number."
 				interpretIsLit := true.
 			numberErrorAssociation := forth privNumber: address length: length.
@@ -38,24 +37,18 @@ ForthCodeInterpret >> execute [
 					interpretIsLit := true.
 					aCodeword := (forth addressForLabel: 'codeword_LIT'). ]
 				ifFalse: [ self error: 'unknown word: ', (toFind collect: [ :c | Character value: c ] as: String) ].				
-		 ].
-"2:"	
+		 ].	
 	(forth varStateValue = 0 or: [executeImmediate])
 		ifFalse: [
-			
-			"compiling"
-			forth privComma: aCodeword. "TODO"
+			forth privComma: aCodeword. 
 			interpretIsLit ifTrue: [ 
 				forth privComma: numberErrorAssociation key ].
 			forth privNext ]
 		ifTrue: [
-"4:"
 			interpretIsLit 
 				ifFalse: [ "execute"
-					"forth pcCurrent: aCodeword."
 					forth pc: (forth wordAt: aCodeword) - 1 ]
 				ifTrue: [ 
-"5:"
 					forth push: numberErrorAssociation key asUnsigned4Bytes.
 					forth privNext ] 
 			 ]
