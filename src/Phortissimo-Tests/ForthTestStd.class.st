@@ -119,48 +119,16 @@ TEST'.
 ForthTestStd >> testException [
 
 	self skip.
-
 	forth := ForthUppercase new init.
 	forth loadStd.
 	forth << '
-: PRINT-STACK-TRACE
-	RSP@				( start at caller of this function )
-	BEGIN
-		DUP R0 4- <		( RSP < R0 )
-	WHILE
-		DUP @			( get the return stack entry )
-		CASE
-		'' EXCEPTION-MARKER 4+ OF	( is it the exception stack frame? )
-			." CATCH ( DSP="
-			4+ DUP @ U.		( print saved stack pointer )
-			." ) "
-		ENDOF
-						( default case )
-			DUP
-			CFA>			( look up the codeword to get the dictionary entry )
-			?DUP IF			( and print it )
-				2DUP			( dea addr dea )
-				ID.			( print word from dictionary entry )
-				[ CHAR + ] LITERAL EMIT
-				SWAP >DFA 4+ - .	( print offset )
-			THEN
-		ENDCASE
-		4+			( move up the stack )
-	REPEAT
-	DROP
-	CR
-;	
-
 : TEST4 PRINT-STACK-TRACE THROW ;
-
 : TEST3 0 TEST4 26 TEST4 ;
-
 : TEST2
 	[''] TEST3 CATCH
 	?DUP IF ." TEST3 threw exception " . CR THEN
 	TEST3
 ;
-
 : TEST TEST2 ;
 TEST'.
 

@@ -60,7 +60,6 @@ ForthStandardMemoryInitializer >> initializeBuitInConstants [
 	self addCode: (ForthConstant on: forth name: 'F_LENMASK' value: forth flagLengthMask).
 	self addCode: (ForthConstant on: forth name: 'F_HIDDEN' value: forth flagHidden).
 	self addCode: (ForthConstant on: forth name: 'F_IMMED' value: forth flagImmediate).
-	self addCode: (ForthConstant on: forth name: 'S0' value: forth s0).
 	self addCode: (ForthConstant on: forth name: 'R0' value: forth memory r0).
 
 ]
@@ -72,6 +71,8 @@ ForthStandardMemoryInitializer >> initializeBuitInVarialbes [
 	self addCode: (ForthVariable on: forth name: 'here').
 	self addCode: (ForthVariable on: forth name: 'latest' initialValue: nil).
 	self addCode: (ForthVariable on: forth name: 'base' initialValue: 10).
+	self addCode: (ForthVariable on: forth name: 's0' initialValue: forth memory s0).
+
 ]
 
 { #category : #initialization }
