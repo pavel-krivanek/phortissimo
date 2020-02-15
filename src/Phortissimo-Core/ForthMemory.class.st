@@ -199,6 +199,12 @@ ForthMemory >> returnStackSize [
 ]
 
 { #category : #memory }
+ForthMemory >> rsp [
+
+	^ rsp
+]
+
+{ #category : #memory }
 ForthMemory >> s0 [
 
 	^ 16rEFFFFFFC

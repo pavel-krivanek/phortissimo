@@ -5,33 +5,6 @@ Class {
 }
 
 { #category : #tests }
-ForthTestNumber >> testBases [
-
-	forth := ForthUppercase new init.
-	forth loadStd.
-	forth << '
-	: TEST
-		123                                . CR
-		[ HEX -7F ] LITERAL      DECIMAL   . CR
-		[ HEX 7FF77FF7 ] LITERAL HEX       . CR
-		[ HEX -7FF77FF7 ] LITERAL 2 BASE ! . CR
-		[ 2 BASE ! 1111111111101110111111111110111 ] LITERAL HEX . CR
-	;
-DECIMAL
-TEST'.
-
-	forth run.
-	self assert: (forth outputBufferString copyReplaceAll: String lf with: String cr) equals: '123 
--127 
-7FF77FF7 
--1111111111101110111111111110111 
-7FF77FF7 
-'
-
-
-]
-
-{ #category : #tests }
 ForthTestNumber >> testNumber [ 
 
 	| wordCode numberCode |
