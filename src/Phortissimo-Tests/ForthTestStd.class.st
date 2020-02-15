@@ -115,6 +115,65 @@ TEST'.
 
 ]
 
+{ #category : #'as yet unclassified' }
+ForthTestStd >> testException [
+
+	self skip.
+
+	forth := ForthUppercase new init.
+	forth loadStd.
+	forth << '
+: PRINT-STACK-TRACE
+	RSP@				( start at caller of this function )
+	BEGIN
+		DUP R0 4- <		( RSP < R0 )
+	WHILE
+		DUP @			( get the return stack entry )
+		CASE
+		'' EXCEPTION-MARKER 4+ OF	( is it the exception stack frame? )
+			." CATCH ( DSP="
+			4+ DUP @ U.		( print saved stack pointer )
+			." ) "
+		ENDOF
+						( default case )
+			DUP
+			CFA>			( look up the codeword to get the dictionary entry )
+			?DUP IF			( and print it )
+				2DUP			( dea addr dea )
+				ID.			( print word from dictionary entry )
+				[ CHAR + ] LITERAL EMIT
+				SWAP >DFA 4+ - .	( print offset )
+			THEN
+		ENDCASE
+		4+			( move up the stack )
+	REPEAT
+	DROP
+	CR
+;	
+
+: TEST4 PRINT-STACK-TRACE THROW ;
+
+: TEST3 0 TEST4 26 TEST4 ;
+
+: TEST2
+	[''] TEST3 CATCH
+	?DUP IF ." TEST3 threw exception " . CR THEN
+	TEST3
+;
+
+: TEST TEST2 ;
+TEST'.
+
+	forth run.
+	self assert: (forth outputBufferString withSeparatorsCompacted ) equals: 'TEST4+0 TEST3+8 CATCH+28 CATCH (  ) TEST2+8 TEST+0 
+TEST4+0 TEST3+20 CATCH+28 CATCH (  ) TEST2+8 TEST+0 
+TEST3 threw exception 26 
+TEST4+0 TEST3+8 TEST2+68 TEST+0 
+TEST4+0 TEST3+20 TEST2+68 TEST+0 
+UNCAUGHT THROW 26' withSeparatorsCompacted
+
+]
+
 { #category : #tests }
 ForthTestStd >> testStack [
 
@@ -139,5 +198,27 @@ TEST'.
 
 	forth run.
 	self assert: (forth outputBufferString withSeparatorsCompacted ) equals: '0 42 42 0 1 2 1 2 1 2 1 3 1 3 2 2 1 4 3 4 3 2 1 2 1 4 3 0 '
+
+]
+
+{ #category : #'as yet unclassified' }
+ForthTestStd >> testStackTrace [
+
+	forth := ForthUppercase new init.
+	forth loadStd.
+	forth << '
+: TEST4 PRINT-STACK-TRACE ;
+: TEST3 TEST4 1 2 + . CR TEST4 ;
+: TEST2 TEST3 TEST3 ;
+: TEST TEST2 ;
+TEST'.
+
+	forth run.
+	self assert: (forth outputBufferString withSeparatorsCompacted ) equals: 'TEST4+0 TEST3+0 TEST2+0 TEST+0 QUIT+0 
+3 
+TEST4+0 TEST3+32 TEST2+0 TEST+0 QUIT+0  
+TEST4+0 TEST3+0 TEST2+4 TEST+0 QUIT+0 
+3
+TEST4+0 TEST3+32 TEST2+4 TEST+0 QUIT+0 ' withSeparatorsCompacted
 
 ]

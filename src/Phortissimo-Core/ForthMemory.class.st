@@ -146,8 +146,8 @@ ForthMemory >> pop: count [
 ForthMemory >> popFromReturnStack [
 
 	| result | 
-	result := self memoryCopyFrom: rsp to: rsp+3.
-	rsp := rsp - 4.
+	result := self memoryCopyFrom: rsp to: rsp+4-1.
+	rsp := rsp + 4.
 	^ result
 ]
 
@@ -165,16 +165,13 @@ ForthMemory >> pushToReturnStack: address [
 
 	| bytes | 
 	bytes := address asUnsigned4Bytes.
-	rsp := rsp + 4.
-	bytes withIndexDo: [ :each :index |
-		self memoryAt: rsp+index-1 put: each ].
-	^ bytes
+	^ self returnStackPush: bytes
 ]
 
 { #category : #memory }
 ForthMemory >> r0 [
 
-	^ self s0 + 3
+	^ 16r7FFFFFC
 ]
 
 { #category : #memory }
@@ -186,7 +183,7 @@ ForthMemory >> resetStack [
 { #category : #memory }
 ForthMemory >> returnStackPush: bytes [
 
-	rsp := rsp + 4.
+	rsp := rsp - 4.
 	bytes withIndexDo: [ :each :index |
 		self memoryAt: rsp+index-1 put: each ].
 	^ bytes
@@ -195,7 +192,7 @@ ForthMemory >> returnStackPush: bytes [
 { #category : #memory }
 ForthMemory >> returnStackSize [
 
-	^ dsp - self r0
+	^ self r0 - dsp
 ]
 
 { #category : #memory }
@@ -205,9 +202,15 @@ ForthMemory >> rsp [
 ]
 
 { #category : #memory }
+ForthMemory >> rsp: anAddress [
+
+	rsp := anAddress
+]
+
+{ #category : #memory }
 ForthMemory >> s0 [
 
-	^ 16rEFFFFFFC
+	^ 16rEFFFFFFC 
 	
 ]
 

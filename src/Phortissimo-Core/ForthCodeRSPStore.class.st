@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 ForthCodeRSPStore >> execute [ 
 
-	self shouldBeImplemented
+	forth memory rsp: forth pop asUnsigned32
 ]
 
 { #category : #accessing }
