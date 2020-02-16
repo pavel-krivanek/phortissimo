@@ -30,7 +30,7 @@ ForthCodeInterpret >> execute [
 				ifTrue: [ executeImmediate := true ]
 		] ifTrue: [
 			"Not in the dictionary (not a word) so assume it's a literal number."
-				interpretIsLit := true.
+			interpretIsLit := true.
 			numberErrorAssociation := forth privNumber: address length: length.
 			numberErrorAssociation value = 0
 				ifTrue: [ 
