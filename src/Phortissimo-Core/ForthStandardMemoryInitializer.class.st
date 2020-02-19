@@ -269,7 +269,8 @@ ForthStandardMemoryInitializer >> initializePlotterPrimitives [
 		ForthCodePenRight.
 		ForthCodePenSouth.
 		ForthCodePenStep.
-		ForthCodePenUp
+		ForthCodePenUp.
+		ForthCodePenResetDirection
 	}
 	
 ]

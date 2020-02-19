@@ -56,7 +56,7 @@ ForthPlotter >> direction: anObject [
 { #category : #'instance creation' }
 ForthPlotter >> down [
 
-	direction := (direction y)@1
+	direction := (direction x)@1
 ]
 
 { #category : #'instance creation' }
@@ -168,6 +168,12 @@ ForthPlotter >> step [
 ForthPlotter >> top [
 
 	direction := (direction y)@(-1)
+]
+
+{ #category : #'instance creation' }
+ForthPlotter >> up [
+
+	direction := (direction x)@(-1)
 ]
 
 { #category : #'instance creation' }
