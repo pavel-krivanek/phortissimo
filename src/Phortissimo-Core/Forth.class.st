@@ -14,7 +14,8 @@ Class {
 		'inputBuffer',
 		'outputBuffer',
 		'unknownLabels',
-		'state'
+		'state',
+		'plotter'
 	],
 	#category : #'Phortissimo-Core-Basic'
 }
@@ -157,7 +158,6 @@ Forth >> initialize [
 	self memoryInitializer initializeMemory.
 	
 	state := #running.
-
 ]
 
 { #category : #initialization }
@@ -291,6 +291,13 @@ Forth >> noInput [
 ]
 
 { #category : #initialization }
+Forth >> openPlotter [
+
+	plotter := ForthPlotter new.
+	plotter open.
+]
+
+{ #category : #initialization }
 Forth >> outputBuffer [
 
 	^ outputBuffer 
@@ -342,6 +349,12 @@ Forth >> peek [
 Forth >> peekReturnStack [
 
 	^ memory peekReturnStack
+]
+
+{ #category : #accessing }
+Forth >> plotter [
+
+	^ plotter
 ]
 
 { #category : #initialization }

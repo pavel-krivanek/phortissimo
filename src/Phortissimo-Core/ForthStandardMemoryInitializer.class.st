@@ -219,6 +219,7 @@ ForthStandardMemoryInitializer >> initializeMemory [
 	self initializeCompilerExtendingPrimitives.
 	self initializeBranchingPrimitives.
 	self initializeStringLiteralsPrimitives.
+	self initializePlotterPrimitives.
 	self initializeInterpreterPrimitives.
 		
 	forth varLatestValue: (forth addressForLabel: 'name_INTERPRET').
@@ -254,6 +255,23 @@ ForthStandardMemoryInitializer >> initializeParsingPrimitives [
 		ForthCodeWord.
 		ForthCodeNumber.
 	}
+]
+
+{ #category : #initialization }
+ForthStandardMemoryInitializer >> initializePlotterPrimitives [
+
+	self installAll: { 
+		ForthCodePenBusy.
+		ForthCodePenDown.
+		ForthCodePenHome.
+		ForthCodePenLeft.
+		ForthCodePenNorth.
+		ForthCodePenRight.
+		ForthCodePenSouth.
+		ForthCodePenStep.
+		ForthCodePenUp
+	}
+	
 ]
 
 { #category : #initialization }
