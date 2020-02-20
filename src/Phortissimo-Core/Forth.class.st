@@ -20,6 +20,135 @@ Class {
 	#category : #'Phortissimo-Core-Basic'
 }
 
+{ #category : #accessing }
+Forth class >> plotter [
+
+<script>
+| forth |	
+	
+forth := ForthUppercase new init.
+forth openPlotter.
+forth loadStd.
+
+forth << '
+
+: variable: VARIABLE LATEST @ >CFA EXECUTE ! ;
+: ->cell 4 SWAP +! ;
+: <-cell 4 SWAP -! ;
+
+32 CELLS ALLOT variable: loopSP
+loopSP @ CONSTANT loopTop
+: >loop loopSP @ ! loopSP ->cell ;
+: loop> loopSP <-cell loopSP @ @ ; 
+: do IMMEDIATE '' >loop , '' >loop , [COMPILE] BEGIN ;
+: loopCheck loop> loop> 1+  2DUP =  -ROT >loop >loop ;
+: loopFinish loop> DROP loop> DROP ;
+: loop IMMEDIATE '' loopCheck , [COMPILE] UNTIL '' loopFinish , ;
+
+: mm 10 * ;
+: cm 100 * ;
+: dot ;
+: dots ;
+: pt 8 dots * ;
+
+: penTranslate BEGIN DUP 0> WHILE PENSTEP 1- REPEAT DROP ;
+: penMove PENUP penTranslate ;
+: penDraw PENDOWN penTranslate ;
+
+: abs DUP 0< IF DUP DUP + - THEN ;
+ 
+: penJump 
+   PENRESET 
+   DUP 0 >= IF PENSOUTH ELSE PENNORTH THEN
+   abs penMove PENRESET 
+   OVER 0 >= IF PENRIGHT ELSE PENLEFT THEN
+   abs penMove PENRESET ;
+
+: drawN PENRESET PENNORTH 1 pt penDraw ;
+: drawS PENRESET PENSOUTH 1 pt penDraw ;
+: drawE PENRESET PENRIGHT 1 pt penDraw ;
+: drawW PENRESET PENLEFT 1 pt penDraw ;
+: drawNE PENRESET PENNORTH PENRIGHT 1 pt penDraw ;
+: drawNW PENRESET PENNORTH PENLEFT 1 pt penDraw ;
+: drawSE PENRESET PENSOUTH PENRIGHT 1 pt penDraw ;
+: drawSW PENRESET PENSOUTH PENLEFT 1 pt penDraw ;
+
+: moveN PENRESET PENNORTH 1 pt penMove ;
+: moveS PENRESET PENSOUTH 1 pt penMove ;
+: moveE PENRESET PENRIGHT 1 pt penMove ;
+: moveW PENRESET PENLEFT 1 pt penMove ;
+: moveNE PENRESET PENNORTH PENRIGHT 1 pt penMove ;
+: moveNW PENRESET PENNORTH PENLEFT 1 pt penMove ;
+: moveSE PENRESET PENSOUTH PENRIGHT 1 pt penMove ;
+: moveSW PENRESET PENSOUTH PENLEFT 1 pt penMove ;
+
+: letterOffset moveE ;
+
+: letter1 
+	1 pt 1 pt penJump 
+	drawNE 6 0 do drawS loop drawW drawE drawE 
+	1 pt -6 pt penJump
+	letterOffset ;
+: letter2
+	0 pt 1 pt penJump 
+	drawNE drawE drawE drawSE drawS drawSW drawW drawW drawSW drawS drawS 4 0 do drawE loop 
+	0 pt -6 pt penJump
+	letterOffset ;
+: letter3
+	0 pt 1 pt penJump 
+	drawNE drawE drawE drawSE drawS drawSW drawW drawE drawSE drawS drawSW drawW drawW drawNW 
+	4 pt -5 pt penJump
+	letterOffset ;
+: letter4
+	4 pt 4 pt penJump 
+	drawW drawW drawW drawW drawN drawNE drawNE drawNE 6 0 do drawS loop 
+	1 pt -6 pt penJump
+	letterOffset ;
+: letter5
+	4 pt 0 pt penJump 
+	4 0 do drawW loop drawS drawS drawE drawE drawE drawSE drawS drawS 
+	drawSW drawW drawW drawNW 
+	4 pt -5 pt penJump
+	letterOffset ;
+: letter6
+	3 pt 0 pt penJump 
+	drawW drawSW drawSW drawS drawS drawS drawSE drawE drawE drawNE drawN
+	drawNW drawW drawW drawW
+	4 pt -3 pt penJump
+	letterOffset ;
+: letter7
+	4 0 do drawE loop drawSW drawSW drawSW drawS drawS drawS
+	3 pt -6 pt penJump
+	letterOffset ;		
+: letter8
+	1 pt 0 pt penJump 
+	drawSW drawS drawSE drawE drawE drawSE drawS drawSW drawW drawW 
+	drawNW drawN drawNE drawE drawE drawNE drawN drawNW drawW drawW
+	3 pt 0 pt penJump
+	letterOffset ;	
+: letter9
+	4 pt 3 pt penJump 
+	drawW drawW drawW drawNW drawN drawNE drawE drawE drawSE drawS
+	drawS drawS drawSW drawSW drawW
+	3 pt -6 pt penJump
+	letterOffset ;
+	
+: letter0
+	0 pt 5 pt penJump 
+	drawSE drawE drawE drawNE drawN drawN drawN drawN drawNW drawW
+	drawW drawSW drawS drawS drawS drawS drawNE drawNE drawNE drawNE
+	0 pt -1 pt penJump
+	letterOffset ;	
+					
+letter1 letter2 letter3 letter4 letter5 letter6 letter7 letter8 letter9 letter0
+
+'.
+
+forth run.
+
+
+]
+
 { #category : #streaming }
 Forth >> << aString [
 
