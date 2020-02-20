@@ -21,6 +21,354 @@ Class {
 }
 
 { #category : #accessing }
+Forth class >> plotLetters [
+
+<script>
+| forth |	
+	
+forth := ForthUppercase new init.
+forth openPlotter.
+forth loadStd.
+
+forth << '
+
+: variable: VARIABLE LATEST @ >CFA EXECUTE ! ;
+: ->cell 4 SWAP +! ;
+: <-cell 4 SWAP -! ;
+
+32 CELLS ALLOT variable: loopSP
+loopSP @ CONSTANT loopTop
+: >loop loopSP @ ! loopSP ->cell ;
+: loop> loopSP <-cell loopSP @ @ ; 
+: do IMMEDIATE '' >loop , '' >loop , [COMPILE] BEGIN ;
+: loopCheck loop> loop> 1+  2DUP =  -ROT >loop >loop ;
+: loopFinish loop> DROP loop> DROP ;
+: loop IMMEDIATE '' loopCheck , [COMPILE] UNTIL '' loopFinish , ;
+
+: mm 10 * ;
+: cm 100 * ;
+: dot ;
+: dots ;
+: pt 8 dots * ;
+
+: penTranslate BEGIN DUP 0> WHILE PENSTEP 1- REPEAT DROP ;
+: penMove PENUP penTranslate ;
+: penDraw PENDOWN penTranslate ;
+
+: abs DUP 0< IF DUP DUP + - THEN ;
+ 
+: penJump 
+   PENRESET 
+   DUP 0 >= IF PENSOUTH ELSE PENNORTH THEN
+   abs penMove PENRESET 
+   OVER 0 >= IF PENRIGHT ELSE PENLEFT THEN
+   abs penMove PENRESET ;
+
+: drawN PENRESET PENNORTH 1 pt penDraw ;
+: drawS PENRESET PENSOUTH 1 pt penDraw ;
+: drawE PENRESET PENRIGHT 1 pt penDraw ;
+: drawW PENRESET PENLEFT 1 pt penDraw ;
+: drawNE PENRESET PENNORTH PENRIGHT 1 pt penDraw ;
+: drawNW PENRESET PENNORTH PENLEFT 1 pt penDraw ;
+: drawSE PENRESET PENSOUTH PENRIGHT 1 pt penDraw ;
+: drawSW PENRESET PENSOUTH PENLEFT 1 pt penDraw ;
+
+: moveN PENRESET PENNORTH 1 pt penMove ;
+: moveS PENRESET PENSOUTH 1 pt penMove ;
+: moveE PENRESET PENRIGHT 1 pt penMove ;
+: moveW PENRESET PENLEFT 1 pt penMove ;
+: moveNE PENRESET PENNORTH PENRIGHT 1 pt penMove ;
+: moveNW PENRESET PENNORTH PENLEFT 1 pt penMove ;
+: moveSE PENRESET PENSOUTH PENRIGHT 1 pt penMove ;
+: moveSW PENRESET PENSOUTH PENLEFT 1 pt penMove ;
+
+: letterOffset moveE ;
+	
+: letterA
+	 0 pt 7 pt penJump
+	drawN drawN drawN drawN drawN drawNE drawE drawE drawSE drawS drawS drawS drawS drawS drawN drawN drawN drawW drawW drawW drawW
+	4 pt -4 pt penJump
+	letterOffset ;
+: lettera
+	 3 pt 6 pt penJump
+	drawSW drawW drawNW drawN drawN drawNE drawE drawSE drawS drawS drawSE
+	0 pt -7 pt penJump
+	letterOffset ;		
+: letterB
+	0 pt 1 pt penJump
+	drawE drawE drawE drawSE drawS drawSW drawW drawW drawE drawE drawSE drawS drawSW drawW drawW drawW drawE drawN drawN drawN drawN drawN drawN
+	3 pt -1 pt penJump
+	letterOffset ;
+: letterb
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawS drawN drawN drawSE drawSE drawE drawNE drawN drawN drawNW drawW drawSW drawSW
+	4 pt -5 pt penJump
+	letterOffset ;
+: letterC
+	4 pt 2 pt penJump
+	drawNW drawW drawW drawSW drawS drawS drawS drawS drawSE drawE drawE drawNE
+	0 pt -6 pt penJump
+	letterOffset ;
+: letterc
+	4 pt 7 pt penJump
+	drawW drawW drawW drawNW drawN drawN drawNE drawE drawE drawE
+	0 pt -3 pt penJump
+	letterOffset ;
+: letterD
+	0 pt 1 pt penJump
+	drawE drawE drawE drawSE drawS drawS drawS drawS drawSW drawW drawW drawW drawE drawN drawN drawN drawN drawN drawN
+	3 pt -1 pt penJump
+	letterOffset ;
+: letterd
+	4 pt 5 pt penJump
+	drawNW drawNW drawW drawSW drawS drawS drawSE drawE drawNE drawNE drawS drawS drawN drawN drawN drawN drawN drawN
+	0 pt -1 pt penJump
+	letterOffset ;
+: letterE
+	4 pt 1 pt penJump
+	drawW drawW drawW drawW drawS drawS drawS drawE drawE drawW drawW drawS drawS drawS drawE drawE drawE drawE
+	0 pt -7 pt penJump
+letterOffset ;
+: lettere
+	3 pt 7 pt penJump
+	drawW drawW drawNW drawN drawN drawNE drawE drawE drawSE drawSW drawW drawW drawW
+	4 pt -5 pt penJump
+	letterOffset ;
+: letterF
+	4 pt 1 pt penJump
+	drawW drawW drawW drawW drawS drawS drawS drawE drawE drawW drawW drawS drawS drawS
+	4 pt -7 pt penJump
+	letterOffset ;
+: letterf
+	3 pt 4 pt penJump
+	drawW drawW drawW
+	1 pt 3 pt penJump
+	drawN drawN drawN drawN drawN drawNE drawE drawSE
+	0 pt -2 pt penJump
+	letterOffset ;
+: letterG
+	3 pt 4 pt penJump
+	drawE drawS drawS drawS drawW drawW drawW drawNW drawN drawN drawN drawN drawNE drawE drawE drawE
+	0 pt -1 pt penJump
+	letterOffset ;
+: letterg
+	4 pt 7 pt penJump
+	drawW drawW drawW drawNW drawN drawN drawNE drawE drawE drawSE drawS drawS drawS drawS drawSW drawW drawW drawNW
+	4 pt -8 pt penJump
+	letterOffset ;
+: letterH
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawS drawN drawN drawN drawE drawE drawE drawE drawS drawS drawS drawN drawN drawN drawN drawN drawN
+	0 pt -1 pt penJump
+	letterOffset ;
+: letterh
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawS drawN drawN drawNE drawNE drawE drawSE drawS drawS drawS
+	0 pt -7 pt penJump
+	letterOffset ;
+: letterI
+	1 pt 1 pt penJump
+	drawE drawE drawW drawS drawS drawS drawS drawS drawS drawW drawE drawE
+	1 pt -7 pt penJump
+	letterOffset ;
+: letteri
+	2 pt 1 pt penJump
+	drawS
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS
+	2 pt -7 pt penJump
+	letterOffset ;
+: letterJ
+	4 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawSW drawW drawW drawNW
+	4 pt -6 pt penJump
+	letterOffset ;
+: letterj
+	 1 pt 8 pt penJump
+	drawSE drawE drawNE drawN drawN drawN drawN drawN
+	0 pt -1 pt penJump
+	drawN
+	0 pt -1 pt penJump
+	letterOffset ;
+: letterK
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawS drawN drawN drawN drawE drawNE drawNE drawNE drawSW drawSW drawSW drawSE drawSE drawSE
+	0 pt -7 pt penJump
+	letterOffset ;
+: letterk
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawS drawN drawN drawE drawE drawSE drawSE drawNW drawNW drawNE drawNE
+	0 pt -3 pt penJump
+	letterOffset ;
+: letterL
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawS drawE drawE drawE drawE
+	0 pt -7 pt penJump
+	letterOffset ;
+: letterl
+	2 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawSE
+	1 pt -7 pt penJump
+	letterOffset  ;
+: letterM
+	0 pt 7 pt penJump
+	drawN drawN drawN drawN drawN drawN drawSE drawSE drawNE drawNE drawS drawS drawS drawS drawS drawS
+	0 pt -7 pt penJump
+	letterOffset ;
+: letterm
+	0 pt 7 pt penJump
+	drawN drawN drawN drawN drawS drawNE drawSE drawS drawN drawNE drawSE drawS drawS drawS
+	0 pt -7 pt penJump
+	letterOffset ;
+: letterN
+	0 pt 7 pt penJump
+	drawN drawN drawN drawN drawN drawN drawS drawSE drawSE drawSE drawSE drawS drawN drawN drawN drawN drawN drawN
+	0 pt -1 pt penJump
+	letterOffset ;
+: lettern
+	0 pt 7 pt penJump
+	drawN drawN drawN drawN drawS drawS drawNE drawNE drawE drawSE drawS drawS drawS
+	0 pt -7 pt penJump
+	letterOffset ;
+: letterO
+	0 pt 2 pt penJump
+	drawS drawS drawS drawS drawSE drawE drawE drawNE drawN drawN drawN drawN drawNW drawW drawW drawSW
+	4 pt -2 pt penJump
+	letterOffset ;
+: lettero
+	0 pt 4 pt penJump
+	drawS drawS drawSE drawE drawE drawNE drawN drawN drawNW drawW drawW drawSW
+	4 pt -4 pt penJump
+	letterOffset ;
+: letterP
+	0 pt 7 pt penJump
+	drawN drawN drawN drawN drawN drawN drawE drawE drawE drawSE drawS drawSW drawW drawW drawW
+	4 pt -4 pt penJump
+	letterOffset ;
+: letterp
+	 0 pt 9 pt penJump
+	drawN drawN drawN drawN drawN drawN drawS drawNE drawE drawE drawSE drawS drawS drawSW drawW drawW drawW
+	4 pt -7 pt penJump
+	letterOffset ;
+: letterQ
+	0 pt 2 pt penJump
+	drawS drawS drawS drawS drawSE drawE drawNE drawSE drawNW drawNW drawSE drawNE drawN drawN drawN drawNW drawW drawW drawSW
+	4 pt -2 pt penJump
+	letterOffset ;
+: letterq
+	4 pt 9 pt penJump
+	drawN drawN drawN drawN drawN drawN drawS drawNW drawW drawW drawSW drawS drawS drawSE drawE drawE drawE
+	0 pt -7 pt penJump
+	letterOffset ;
+: letterR
+	0 pt 7 pt penJump
+	drawN drawN drawN drawN drawN drawN drawE drawE drawE drawSE drawS drawSW drawW drawW drawW drawE drawSE drawSE drawSE
+	0 pt -7 pt penJump
+	letterOffset  ;
+: letterr
+	0 pt 7 pt penJump
+	drawN drawN drawN drawN drawS drawS drawNE drawNE drawE drawSE
+	0 pt -4 pt penJump
+	letterOffset ;
+: letterS
+	0 pt 6 pt penJump
+	drawSE drawE drawE drawNE drawNW drawNW drawNW drawNW drawNE drawE drawE drawSE
+	0 pt -2 pt penJump
+	letterOffset ;
+: letters
+	0 pt 7 pt penJump
+	drawE drawE drawE drawNE drawNW drawW drawW drawNW drawNE drawE drawE drawE
+	0 pt -3 pt penJump
+	letterOffset ;
+: letterT
+	0 pt 1 pt penJump
+	drawE drawE drawE drawE drawW drawW drawS drawS drawS drawS drawS drawS
+	2 pt -7 pt penJump
+	letterOffset ;
+: lettert
+	0 pt 3 pt penJump
+	drawE drawE drawE drawE drawW drawW drawN drawN drawS drawS drawS drawS drawS drawSE drawNE
+	0 pt -6 pt penJump
+	letterOffset ;
+: letterU
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawSE drawE drawE drawNE drawN drawN drawN drawN drawN
+	0 pt -1 pt penJump
+letterOffset ;
+: letteru
+	0 pt 3 pt penJump
+	drawS drawS drawS drawSE drawE drawNE drawNE drawN drawN drawS drawS drawS drawS
+	0 pt -7 pt penJump
+	letterOffset ;
+: letterV
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS drawSE drawSE drawNE drawNE drawN drawN drawN drawN
+	0 pt -1 pt penJump
+	letterOffset ;
+: letterv
+	0 pt 3 pt penJump
+	drawS drawS drawSE drawSE drawNE drawNE drawN drawN
+	0 pt -3 pt penJump
+	letterOffset ;
+: letterW
+	0 pt 1 pt penJump
+	drawS drawS drawS drawS drawS drawSE drawNE drawN drawN drawS drawS drawSE drawNE drawN drawN drawN drawN drawN
+	0 pt -1 pt penJump
+	letterOffset ;
+: letterw
+	0 pt 3 pt penJump
+	drawS drawS drawS drawSE drawNE drawN drawS drawSE drawNE drawN drawN drawN
+	0 pt -3 pt penJump
+	letterOffset ;
+: letterX
+	0 pt 1 pt penJump
+	drawS drawSE drawSE drawSW drawSW drawS drawN drawNE drawNE drawSE drawSE drawS drawN drawNW drawNW drawNE drawNE drawN
+	0 pt -1 pt penJump
+	letterOffset ;
+: letterx
+	0 pt 3 pt penJump
+	drawSE drawSE drawSW drawSW drawNE drawNE drawSE drawSE drawNW drawNW drawNE drawNE
+	0 pt -3 pt penJump
+	letterOffset ;
+: letterY
+	0 pt 1 pt penJump
+	drawS drawSE drawSE drawS drawS drawS drawN drawN drawN drawNE drawNE drawN
+	0 pt -1 pt penJump
+	letterOffset ;
+: lettery
+	0 pt 3 pt penJump
+	drawS drawS drawSE drawSE drawE drawNE drawN drawN drawN drawS drawS drawS drawSW drawSW drawSW drawW
+	4 pt -9 pt penJump
+	letterOffset ;
+: letterZ
+	0 pt 1 pt penJump
+	drawE drawE drawE drawE drawS drawSW drawSW drawSW drawSW drawS drawE drawE drawE drawE
+	0 pt -7 pt penJump
+	letterOffset ;
+: letterz
+	0 pt 3 pt penJump
+	drawE drawE drawE drawE drawSW drawSW drawSW drawSW drawE drawE drawE drawE
+	0 pt -7 pt penJump
+	letterOffset ;
+
+letterF lettero letterr lettert letterh
+	
+\ letterA lettera letterB letterb letterC letterc letterD letterd letterE 
+\ lettere letterF letterf letterG letterg letterH letterh letterI letteri 
+\ letterJ letterj letterK letterk letterL letterl letterM letterm letterN 
+\ lettern letterO lettero letterP letterp letterQ letterq letterR letterr 
+\ letterS letters letterT lettert letterU letteru letterV letterv letterW 
+\ letterw letterX letterx letterY lettery letterZ letterz
+'.
+
+forth run.
+
+
+
+
+]
+
+{ #category : #accessing }
 Forth class >> plotNumbers [
 
 <script>
