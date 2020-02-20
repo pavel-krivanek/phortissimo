@@ -21,7 +21,7 @@ Class {
 }
 
 { #category : #accessing }
-Forth class >> plotter [
+Forth class >> plotNumbers [
 
 <script>
 | forth |	
@@ -85,59 +85,55 @@ loopSP @ CONSTANT loopTop
 : letterOffset moveE ;
 
 : letter1 
-	1 pt 1 pt penJump 
-	drawNE 6 0 do drawS loop drawW drawE drawE 
-	1 pt -6 pt penJump
+	1 pt 2 pt penJump
+	drawNE drawS drawS drawS drawS drawS drawS drawW drawE drawE
+	1 pt -7 pt penJump
 	letterOffset ;
 : letter2
-	0 pt 1 pt penJump 
-	drawNE drawE drawE drawSE drawS drawSW drawW drawW drawSW drawS drawS 4 0 do drawE loop 
-	0 pt -6 pt penJump
+	0 pt 2 pt penJump
+	drawNE drawE drawE drawSE drawS drawSW drawW drawW drawSW drawS drawS drawE drawE drawE drawE
+	0 pt -7 pt penJump
 	letterOffset ;
 : letter3
-	0 pt 1 pt penJump 
-	drawNE drawE drawE drawSE drawS drawSW drawW drawE drawSE drawS drawSW drawW drawW drawNW 
-	4 pt -5 pt penJump
-	letterOffset ;
+	0 pt 2 pt penJump
+	drawNE drawE drawE drawSE drawS drawSW drawW drawE drawSE drawS drawSW drawW drawW drawNW
+	4 pt -6 pt penJump
+letterOffset ;
 : letter4
-	4 pt 4 pt penJump 
-	drawW drawW drawW drawW drawN drawNE drawNE drawNE 6 0 do drawS loop 
-	1 pt -6 pt penJump
+	4 pt 5 pt penJump
+	drawW drawW drawW drawW drawN drawNE drawNE drawNE drawS drawS drawS drawS drawS drawS
+	1 pt -7 pt penJump
 	letterOffset ;
 : letter5
-	4 pt 0 pt penJump 
-	4 0 do drawW loop drawS drawS drawE drawE drawE drawSE drawS drawS 
-	drawSW drawW drawW drawNW 
-	4 pt -5 pt penJump
+	4 pt 1 pt penJump
+	drawW drawW drawW drawW drawS drawS drawE drawE drawE drawSE drawS drawS drawSW drawW drawW drawNW
+	4 pt -6 pt penJump
 	letterOffset ;
 : letter6
-	3 pt 0 pt penJump 
-	drawW drawSW drawSW drawS drawS drawS drawSE drawE drawE drawNE drawN
-	drawNW drawW drawW drawW
-	4 pt -3 pt penJump
+	3 pt 1 pt penJump
+	drawW drawSW drawSW drawS drawS drawS drawSE drawE drawE drawNE drawN drawNW drawW drawW drawW
+	4 pt -4 pt penJump
 	letterOffset ;
 : letter7
-	4 0 do drawE loop drawSW drawSW drawSW drawS drawS drawS
-	3 pt -6 pt penJump
+	0 pt 1 pt penJump
+	drawE drawE drawE drawE drawSW drawSW drawSW drawS drawS drawS
+	3 pt -7 pt penJump
 	letterOffset ;		
 : letter8
-	1 pt 0 pt penJump 
-	drawSW drawS drawSE drawE drawE drawSE drawS drawSW drawW drawW 
-	drawNW drawN drawNE drawE drawE drawNE drawN drawNW drawW drawW
-	3 pt 0 pt penJump
+	0 pt 2 pt penJump
+	drawS drawSE drawE drawE drawSE drawS drawSW drawW drawW drawNW drawN drawNE drawE drawE drawNE drawN drawNW drawW drawW drawSW
+	4 pt -2 pt penJump
 	letterOffset ;	
 : letter9
-	4 pt 3 pt penJump 
-	drawW drawW drawW drawNW drawN drawNE drawE drawE drawSE drawS
-	drawS drawS drawSW drawSW drawW
-	3 pt -6 pt penJump
+	4 pt 4 pt penJump
+	drawW drawW drawW drawNW drawN drawNE drawE drawE drawSE drawS drawS drawS drawSW drawSW drawW
+	3 pt -7 pt penJump
 	letterOffset ;
 	
 : letter0
-	0 pt 5 pt penJump 
-	drawSE drawE drawE drawNE drawN drawN drawN drawN drawNW drawW
-	drawW drawSW drawS drawS drawS drawS drawNE drawNE drawNE drawNE
-	0 pt -1 pt penJump
+	0 pt 6 pt penJump
+	drawSE drawE drawE drawNE drawN drawN drawN drawN drawNW drawW drawW drawSW drawS drawS drawS drawS drawNE drawNE drawNE drawNE
+	0 pt -2 pt penJump
 	letterOffset ;	
 					
 letter1 letter2 letter3 letter4 letter5 letter6 letter7 letter8 letter9 letter0

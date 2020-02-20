@@ -182,5 +182,5 @@ ForthPlotterCharacterEditor >> sequenceString: sequence [
 
 	sequence size < 2 ifTrue: [ ^ '' ].
 	^ (sequence overlappingPairsCollect: [ :a :b |
-		'move', (self directionFrom: a to: b) ]) joinUsing: String space
+		'draw', (self directionFrom: a to: b) ]) joinUsing: String space
 ]
