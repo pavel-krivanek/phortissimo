@@ -62,7 +62,7 @@ ForthPlotter >> down [
 { #category : #'instance creation' }
 ForthPlotter >> extent [ 
 	
-	^ 800@200
+	^ 800@800
 ]
 
 { #category : #accessing }
@@ -157,7 +157,6 @@ ForthPlotter >> step [
 	canvas line: position to: limitted color: Color black.
 	position := limitted.
 	
-	morph changed.
 
 	
 

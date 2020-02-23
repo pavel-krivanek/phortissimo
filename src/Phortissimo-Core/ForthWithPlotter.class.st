@@ -7,6 +7,24 @@ Class {
 	#category : #'Phortissimo-Core-Basic'
 }
 
+{ #category : #example }
+ForthWithPlotter class >> example [
+
+	<script>
+	| forth |
+	forth := ForthWithPlotter new init.
+	forth openPlotter.
+	forth loadStdWithPlotter.
+	forth << '
+	." Hello world!" cr
+	words
+	'.
+
+	forth run.
+	forth outputBufferString
+
+]
+
 { #category : #initialization }
 ForthWithPlotter >> memoryInitializer [
 
