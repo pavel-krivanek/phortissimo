@@ -14,8 +14,7 @@ Class {
 		'inputBuffer',
 		'outputBuffer',
 		'unknownLabels',
-		'state',
-		'plotter'
+		'state'
 	],
 	#category : #'Phortissimo-Core-Basic'
 }
@@ -1527,6 +1526,12 @@ Forth >> loadStd [
 	self << (self class package mcWorkingCopy ancestry ancestors first package repository location / 'src-forth' / 'std.f') readStream upToEnd.
 ]
 
+{ #category : #'as yet unclassified' }
+Forth >> loadStdWithPlotter [
+
+	self << (self class package mcWorkingCopy ancestry ancestors first package repository location / 'src-forth' / 'std-plotter.f') readStream upToEnd.
+]
+
 { #category : #accessing }
 Forth >> match: nameArray at: address [
 
@@ -1592,13 +1597,6 @@ Forth >> noInput [
 ]
 
 { #category : #initialization }
-Forth >> openPlotter [
-
-	plotter := ForthPlotter new.
-	plotter open.
-]
-
-{ #category : #initialization }
 Forth >> outputBuffer [
 
 	^ outputBuffer 
@@ -1650,12 +1648,6 @@ Forth >> peek [
 Forth >> peekReturnStack [
 
 	^ memory peekReturnStack
-]
-
-{ #category : #accessing }
-Forth >> plotter [
-
-	^ plotter
 ]
 
 { #category : #initialization }
