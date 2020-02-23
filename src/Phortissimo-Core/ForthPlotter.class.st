@@ -62,7 +62,7 @@ ForthPlotter >> down [
 { #category : #'instance creation' }
 ForthPlotter >> extent [ 
 	
-	^ 400@200
+	^ 800@200
 ]
 
 { #category : #accessing }

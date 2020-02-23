@@ -21,6 +21,834 @@ Class {
 }
 
 { #category : #accessing }
+Forth class >> plotAscii [
+
+<script>
+| forth |
+forth := ForthUppercase new init.
+forth openPlotter.
+forth loadStd.
+
+forth << '
+
+: variable: VARIABLE LATEST @ >CFA EXECUTE ! ;
+: ->cell 4 SWAP +! ;
+: <-cell 4 SWAP -! ;
+
+32 CELLS ALLOT variable: loopSP
+loopSP @ CONSTANT loopTop
+: >loop loopSP @ ! loopSP ->cell ;
+: loop> loopSP <-cell loopSP @ @ ; 
+: do IMMEDIATE '' >loop , '' >loop , [COMPILE] BEGIN ;
+: loopCheck loop> loop> 1+  2DUP =  -ROT >loop >loop ;
+: loopFinish loop> DROP loop> DROP ;
+: loop IMMEDIATE '' loopCheck , [COMPILE] UNTIL '' loopFinish , ;
+
+: mm 10 * ;
+: cm 100 * ;
+: dot ;
+: dots ;
+: pt 1 dots * ;
+
+800 VALUE maxPlotterX 
+300 VALUE maxPlotterY
+
+VARIABLE plotterX
+0 plotterX !
+VARIABLE plotterY
+0 plotterY !
+
+: penTranslate BEGIN DUP 0> WHILE PENSTEP 1- REPEAT DROP ;
+: penMove PENUP penTranslate ;
+: penDraw PENDOWN penTranslate ;
+
+: abs DUP 0< IF DUP DUP + - THEN ;
+ 
+: PENWEST PENLEFT ; 
+: PENEAST PENRIGHT ;
+
+: validPlotterX DUP 0>= SWAP maxPlotterX <= AND ;
+: validPlotterY DUP 0>= SWAP maxPlotterY <= AND ;
+
+: validatePlotterY plotterY @ SWAP pt + validPlotterY ;
+: updatePlotterY pt plotterY +! ;
+: validatePlotterX plotterX @ SWAP pt + validPlotterX ;
+: updatePlotterX pt plotterX +! ;
+: drawPt 1 pt penDraw ;
+: movePt 1 pt penMove ;
+
+: setDirectionNorth -1 validatePlotterY DUP IF PENNORTH -1 updatePlotterY THEN ;
+: setDirectionSouth  1 validatePlotterY DUP IF PENSOUTH  1 updatePlotterY THEN ;
+: setDirectionEast   1 validatePlotterX DUP IF PENEAST   1 updatePlotterX THEN ;
+: setDirectionWest  -1 validatePlotterX DUP IF PENWEST  -1 updatePlotterX THEN ;
+
+: drawIfPossible IF drawPt THEN ;
+: moveIfPossible IF movePt THEN ;
+: drawIfBothPossible OR IF drawPt THEN ;
+: moveIfBothPossible OR IF movePt THEN ;
+
+: drN  PENRESET setDirectionNorth drawIfPossible ;
+: drS  PENRESET setDirectionSouth drawIfPossible ;
+: drW  PENRESET setDirectionWest  drawIfPossible ;
+: drE  PENRESET setDirectionEast  drawIfPossible ;
+: drNE PENRESET setDirectionNorth setDirectionEast drawIfBothPossible ;
+: drNW PENRESET setDirectionNorth setDirectionWest drawIfBothPossible ;
+: drSE PENRESET setDirectionSouth setDirectionEast drawIfBothPossible ;
+: drSW PENRESET setDirectionSouth setDirectionWest drawIfBothPossible ;
+
+: moveN  PENRESET setDirectionNorth moveIfPossible ;
+: moveS  PENRESET setDirectionSouth moveIfPossible ;
+: moveW  PENRESET setDirectionWest  moveIfPossible ;
+: moveE  PENRESET setDirectionEast  moveIfPossible ;	
+: moveNE PENRESET setDirectionNorth setDirectionEast moveIfBothPossible ;
+: moveNW PENRESET setDirectionNorth setDirectionWest moveIfBothPossible ;
+: moveSE PENRESET setDirectionSouth setDirectionEast moveIfBothPossible ;
+: moveSW PENRESET setDirectionSouth setDirectionWest moveIfBothPossible ;
+
+: penJump 
+   DUP 0 > IF DUP 0 do moveS loop THEN
+   DUP 0 < IF DUP abs 0 do moveN loop THEN 
+   DROP
+   DUP 0 > IF DUP 0 do moveE loop THEN
+   DUP 0 < IF DUP abs 0 do moveW loop THEN
+ 	DROP
+	;
+
+: letterOffset moveE ;
+
+: letter1 
+	1 2 penJump
+	drNE drS drS drS drS drS drS drW drE drE
+	1 -7 penJump
+	letterOffset ;
+: letter2
+	0 2 penJump
+	drNE drE drE drSE drS drSW drW drW drSW drS drS drE drE drE drE
+	0 -7 penJump
+	letterOffset ;
+: letter3
+	0 2 penJump
+	drNE drE drE drSE drS drSW drW drE drSE drS drSW drW drW drNW
+	4 -6 penJump
+letterOffset ;
+: letter4
+	4 5 penJump
+	drW drW drW drW drN drNE drNE drNE drS drS drS drS drS drS
+	1 -7 penJump
+	letterOffset ;
+: letter5
+	4 1 penJump
+	drW drW drW drW drS drS drE drE drE drSE drS drS drSW drW drW drNW
+	4 -6 penJump
+	letterOffset ;
+: letter6
+	3 1 penJump
+	drW drSW drSW drS drS drS drSE drE drE drNE drN drNW drW drW drW
+	4 -4 penJump
+	letterOffset ;
+: letter7
+	0 1 penJump
+	drE drE drE drE drSW drSW drSW drS drS drS
+	3 -7 penJump
+	letterOffset ;		
+: letter8
+	0 2 penJump
+	drS drSE drE drE drSE drS drSW drW drW drNW drN drNE drE drE drNE drN drNW drW drW drSW
+	4 -2 penJump
+	letterOffset ;	
+: letter9
+	4 4 penJump
+	drW drW drW drNW drN drNE drE drE drSE drS drS drS drSW drSW drW
+	3 -7 penJump
+	letterOffset ;
+	
+: letter0
+	0 6 penJump
+	drSE drE drE drNE drN drN drN drN drNW drW drW drSW drS drS drS drS drNE drNE drNE drNE
+	0 -2 penJump
+	letterOffset ;	
+	
+: letterA
+	 0 7 penJump
+	drN drN drN drN drN drNE drE drE drSE drS drS drS drS drS drN drN drN drW drW drW drW
+	4 -4 penJump
+	letterOffset ;
+: lettera
+	 3 6 penJump
+	drSW drW drNW drN drN drNE drE drSE drS drS drSE
+	0 -7 penJump
+	letterOffset ;		
+: letterB
+	0 1 penJump
+	drE drE drE drSE drS drSW drW drW drE drE drSE drS drSW drW drW drW drE drN drN drN drN drN drN
+	3 -1 penJump
+	letterOffset ;
+: letterb
+	0 1 penJump
+	drS drS drS drS drS drS drN drN drSE drSE drE drNE drN drN drNW drW drSW drSW
+	4 -5 penJump
+	letterOffset ;
+: letterC
+	4 2 penJump
+	drNW drW drW drSW drS drS drS drS drSE drE drE drNE
+	0 -6 penJump
+	letterOffset
+	;
+: letterc
+	4 7 penJump
+	drW drW drW drNW drN drN drNE drE drE drE
+	0 -3 penJump
+	letterOffset
+	;
+: letterD
+	0 1 penJump
+	drE drE drE drSE drS drS drS drS drSW drW drW drW drE drN drN drN drN drN drN
+	3 -1 penJump
+	letterOffset
+	;
+: letterd
+	4 5 penJump
+	drNW drNW drW drSW drS drS drSE drE drNE drNE drS drS drN drN drN drN drN drN
+	0 -1 penJump
+	letterOffset
+	;
+: letterE
+	4 1 penJump
+	drW drW drW drW drS drS drS drE drE drW drW drS drS drS drE drE drE drE
+	0 -7 penJump
+	letterOffset
+	;
+: lettere
+	3 7 penJump
+	drW drW drNW drN drN drNE drE drE drSE drSW drW drW drW
+	4 -5 penJump
+	letterOffset
+	;
+: letterF
+	4 1 penJump
+	drW drW drW drW drS drS drS drE drE drW drW drS drS drS
+	4 -7 penJump
+	letterOffset
+	;
+: letterf
+	3 4 penJump
+	drW drW drW
+	1 3 penJump
+	drN drN drN drN drN drNE drE drSE
+	0 -2 penJump
+	letterOffset
+	;
+: letterG
+	3 4 penJump
+	drE drS drS drS drW drW drW drNW drN drN drN drN drNE drE drE drE
+	0 -1 penJump
+	letterOffset 
+	;
+: letterg
+	4 7 penJump
+	drW drW drW drNW drN drN drNE drE drE drSE drS drS drS drS drSW drW drW drNW
+	4 -8 penJump
+	letterOffset
+	;
+: letterH
+	0 1 penJump
+	drS drS drS drS drS drS drN drN drN drE drE drE drE drS drS drS drN drN drN drN drN drN
+	0 -1 penJump
+	letterOffset
+	;
+: letterh
+	0 1 penJump
+	drS drS drS drS drS drS drN drN drNE drNE drE drSE drS drS drS
+	0 -7 penJump
+	letterOffset
+	;
+: letterI
+	1 1 penJump
+	drE drE drW drS drS drS drS drS drS drW drE drE
+	1 -7 penJump
+	letterOffset
+	;
+: letteri
+	2 1 penJump
+	drS
+	0 1 penJump
+	drS drS drS drS
+	2 -7 penJump
+	letterOffset
+	;
+: letterJ
+	4 1 penJump
+	drS drS drS drS drS drSW drW drW drNW
+	4 -6 penJump
+	letterOffset
+	;
+: letterj
+	 1 8 penJump
+	drSE drE drNE drN drN drN drN drN
+	0 -1 penJump
+	drN
+	0 -1 penJump
+	letterOffset 
+	;
+: letterK
+	0 1 penJump
+	drS drS drS drS drS drS drN drN drN drE drNE drNE drNE drSW drSW drSW drSE drSE drSE
+	0 -7 penJump
+	letterOffset
+	;
+: letterk
+	0 1 penJump
+	drS drS drS drS drS drS drN drN drE drE drSE drSE drNW drNW drNE drNE
+	0 -3 penJump
+	letterOffset
+	;
+: letterL
+	0 1 penJump
+	drS drS drS drS drS drS drE drE drE drE
+	0 -7 penJump
+	letterOffset
+	;
+: letterl
+	2 1 penJump
+	drS drS drS drS drS drSE
+	1 -7 penJump
+	letterOffset
+ ;
+: letterM
+	0 7 penJump
+	drN drN drN drN drN drN drSE drSE drNE drNE drS drS drS drS drS drS
+	0 -7 penJump
+	letterOffset
+ ;
+: letterm
+	0 7 penJump
+	drN drN drN drN drS drNE drSE drS drN drNE drSE drS drS drS
+	0 -7 penJump
+	letterOffset
+	;
+: letterN
+	0 7 penJump
+	drN drN drN drN drN drN drS drSE drSE drSE drSE drS drN drN drN drN drN drN
+	0 -1 penJump
+	letterOffset
+	;
+: lettern
+	0 7 penJump
+	drN drN drN drN drS drS drNE drNE drE drSE drS drS drS
+	0 -7 penJump
+	letterOffset
+	;
+: letterO
+	0 2 penJump
+	drS drS drS drS drSE drE drE drNE drN drN drN drN drNW drW drW drSW
+	4 -2 penJump
+	letterOffset
+	;
+: lettero
+	0 4 penJump
+	drS drS drSE drE drE drNE drN drN drNW drW drW drSW
+	4 -4 penJump
+	letterOffset
+	;
+: letterP
+	0 7 penJump
+	drN drN drN drN drN drN drE drE drE drSE drS drSW drW drW drW
+	4 -4 penJump
+	letterOffset
+	;
+: letterp
+	 0 9 penJump
+	drN drN drN drN drN drN drS drNE drE drE drSE drS drS drSW drW drW drW
+	4 -7 penJump
+	letterOffset
+	;
+: letterQ
+	0 2 penJump
+	drS drS drS drS drSE drE drNE drSE drNW drNW drSE drNE drN drN drN drNW drW drW drSW
+	4 -2 penJump
+	letterOffset
+	;
+: letterq
+	4 9 penJump
+	drN drN drN drN drN drN drS drNW drW drW drSW drS drS drSE drE drE drE
+	0 -7 penJump
+	letterOffset
+	;
+: letterR
+	0 7 penJump
+	drN drN drN drN drN drN drE drE drE drSE drS drSW drW drW drW drE drSE drSE drSE
+	0 -7 penJump
+	letterOffset
+	;
+: letterr
+	0 7 penJump
+	drN drN drN drN drS drS drNE drNE drE drSE
+	0 -4 penJump
+	letterOffset
+	;
+: letterS
+	0 6 penJump
+	drSE drE drE drNE drNW drNW drNW drNW drNE drE drE drSE
+	0 -2 penJump
+	letterOffset
+	;
+: letters
+	0 7 penJump
+	drE drE drE drNE drNW drW drW drNW drNE drE drE drE
+	0 -3 penJump
+	letterOffset
+	;
+: letterT
+	0 1 penJump
+	drE drE drE drE drW drW drS drS drS drS drS drS
+	2 -7 penJump
+	letterOffset
+	;
+: lettert
+	0 3 penJump
+	drE drE drE drE drW drW drN drN drS drS drS drS drS drSE drNE
+	0 -6 penJump
+	letterOffset
+	;
+: letterU
+	0 1 penJump
+	drS drS drS drS drS drSE drE drE drNE drN drN drN drN drN
+	0 -1 penJump
+	letterOffset
+	;
+: letteru
+	0 3 penJump
+	drS drS drS drSE drE drNE drNE drN drN drS drS drS drS
+	0 -7 penJump
+	letterOffset
+	;
+: letterV
+	0 1 penJump
+	drS drS drS drS drSE drSE drNE drNE drN drN drN drN
+	0 -1 penJump
+	letterOffset
+ ;
+: letterv
+	0 3 penJump
+	drS drS drSE drSE drNE drNE drN drN
+	0 -3 penJump
+	letterOffset
+	;
+: letterW
+	0 1 penJump
+	drS drS drS drS drS drSE drNE drN drN drS drS drSE drNE drN drN drN drN drN
+	0 -1 penJump
+	letterOffset
+ 	;
+: letterw
+	0 3 penJump
+	drS drS drS drSE drNE drN drS drSE drNE drN drN drN
+	0 -3 penJump
+	letterOffset
+ 	;
+: letterX
+	0 1 penJump
+	drS drSE drSE drSW drSW drS drN drNE drNE drSE drSE drS drN drNW drNW drNE drNE drN
+	0 -1 penJump
+	letterOffset
+	;
+: letterx
+	0 3 penJump
+	drSE drSE drSW drSW drNE drNE drSE drSE drNW drNW drNE drNE
+	0 -3 penJump
+	letterOffset
+ ;
+: letterY
+	0 1 penJump
+	drS drSE drSE drS drS drS drN drN drN drNE drNE drN
+	0 -1 penJump
+	letterOffset
+	;
+: lettery
+	0 3 penJump
+	drS drS drSE drSE drE drNE drN drN drN drS drS drS drSW drSW drSW drW
+	4 -9 penJump
+	letterOffset
+ ;
+: letterZ
+	0 1 penJump
+	drE drE drE drE drS drSW drSW drSW drSW drS drE drE drE drE
+	0 -7 penJump
+	letterOffset
+ ;
+: letterz
+	0 3 penJump
+	drE drE drE drE drSW drSW drSW drSW drE drE drE drE
+	0 -7 penJump
+	letterOffset
+	;
+: letter{
+	3 1 penJump
+	drSW drS drSE drW drW drE drE drSW drS drSE
+	1 -7 penJump
+	letterOffset
+	;
+: letter| 
+	2 1 penJump
+	drS drS drS drS drS drS
+	2 -7 penJump
+	letterOffset
+	;
+: letter}
+	1 1 penJump
+	drSE drS drSW drE drE drW drW drSE drS drSW
+	3 -7 penJump
+	letterOffset
+	;
+: letter!
+	2 1 penJump
+	drS drS drS drS
+	0 1 penJump
+	drS
+	2 -7 penJump
+	letterOffset
+	;
+: letter"
+	2 1 penJump
+	drSW
+	2 -1 penJump
+	drSW
+	2 -2 penJump
+	letterOffset
+	;
+: letter#
+	2 3 penJump
+	drS drS drS
+	1 0 penJump
+	drN drN drN
+	1 1 penJump
+	drW drW drW
+	0 1 penJump
+	drE drE drE
+	0 -5 penJump
+	letterOffset
+	;
+: letter$
+	4 3 penJump
+	drNW drW drN drS drW drSW drSE drE drE drSE drSW drW drS drN drW drNW
+	4 -5 penJump
+	letterOffset
+	;
+: letter%
+	0 4 penJump
+	drNE drE drSW drW
+	0 3 penJump
+	drNE drNE drNE drNE
+	0 3 penJump
+	drSW drW drNE drE
+	0 -6 penJump
+	letterOffset
+	;
+: letter&
+	4 7 penJump
+	drNW drNW drNW drN drE drS drSW drSW drSE drE drNE drNE
+	0 -5 penJump
+	letterOffset
+	;
+: letter''
+	3 1 penJump
+	drSW
+	2 -2 penJump
+	letterOffset
+	;
+
+: letter(
+	3 1 penJump
+	drSW drS drS drS drS drSE
+	1 -7 penJump
+	letterOffset
+	;
+: letter)
+	1 1 penJump
+	drSE drS drS drS drS drSW
+	3 -7 penJump
+	letterOffset
+	;
+: letter*
+	1 3 penJump
+	drSE drN drS drNE drSW drE drW drSE drNW drS drN drSW drNE drW
+	3 -4 penJump
+	letterOffset
+	;
+: letter+
+	2 3 penJump
+	drS drS drN drW drE drE
+	1 -4 penJump
+	letterOffset
+	;
+: letter,
+	2 6 penJump
+	drS drSW
+	3 -8 penJump
+	letterOffset
+	;
+: letter-
+	1 4 penJump
+	drE drE
+	1 -4 penJump
+	letterOffset
+	;
+: letter.
+	2 6 penJump
+	drS
+	2 -7 penJump
+	letterOffset
+	;
+: letter/
+	0 6 penJump
+	drNE drNE drNE drNE
+	0 -2 penJump
+	letterOffset
+	;
+: letter:
+2 4 penJump
+drS
+0 1 penJump
+drS
+2 -7 penJump
+letterOffset
+	;
+: letter;
+2 4 penJump
+drS
+0 1 penJump
+drS drSW
+3 -8 penJump
+letterOffset
+	;
+: letter<
+	3 2 penJump
+	drSW drSW drSE drSE
+	1 -6 penJump
+	letterOffset
+	;
+: letter=
+	1 3 penJump
+	drE drE drE
+	-3 2 penJump
+	drE drE drE
+	0 -5 penJump
+	letterOffset
+	;
+: letter>
+	1 2 penJump
+	drSE drSE drSW drSW
+	3 -6 penJump
+	letterOffset
+	;
+: letter?
+	0 2 penJump
+	drNE drE drE drSE drSW drW drW drSW drSE drE drE drNE
+	-2 2 penJump
+	drS
+	2 -7 penJump
+	letterOffset
+	;
+: letter@
+	3 5 penJump
+	drW drW drN drNE drE drS drS drE drN drN drNW drW drW drSW drS drS drSE drE drE
+	1 -6 penJump
+	letterOffset
+	;
+: letter[
+	3 1 penJump
+	drW drW drS drS drS drS drS drS drE drE
+	1 -7 penJump
+	letterOffset
+	;
+: letter\
+	0 2 penJump
+	drSE drSE drSE drSE
+	0 -6 penJump
+	letterOffset
+	;
+: letter]
+	1 1 penJump
+	drE drE drS drS drS drS drS drS drW drW
+	3 -7 penJump
+	letterOffset
+	;
+: letter^
+	1 2 penJump
+	drNE drSE
+	1 -2 penJump
+	letterOffset
+	;
+: letter_
+	0 7 penJump
+	drE drE drE drE
+	0 -7 penJump
+	letterOffset
+	;
+: letter`
+	1 1 penJump
+	drSE
+	2 -2 penJump
+	letterOffset
+	;
+: letter~
+	0 5 penJump
+	drNE drE drSE drNE
+	0 -4 penJump
+	letterOffset
+	;
+: letterNone ;
+: letterSpace 
+	4 0 penJump
+	letterOffset
+	;
+
+: characterTable 
+	letterNone  (   0 )
+	letterNone  (   1 )
+	letterNone  (   2 )
+	letterNone  (   3 )
+	letterNone  (   4 )
+	letterNone  (   5 )
+	letterNone  (   6 )
+	letterNone  (   7 )
+	letterNone  (   8 )
+	letterNone  (   9 )
+	letterNone  (  10 )
+	letterNone  (  11 )
+	letterNone  (  12 )
+	letterNone  (  13 )
+	letterNone  (  14 )
+	letterNone  (  15 )
+	letterNone  (  16 )
+	letterNone  (  17 )
+	letterNone  (  18 )
+	letterNone  (  19 )
+	letterNone  (  20 )
+	letterNone  (  21 )
+	letterNone  (  22 )
+	letterNone  (  23 )
+	letterNone  (  24 )
+	letterNone  (  25 )
+	letterNone  (  26 )
+	letterNone  (  27 )
+	letterNone  (  28 )
+	letterNone  (  29 )
+	letterNone  (  30 )
+	letterNone  (  31 )
+	letterSpace (  32 )
+	letter!     (  33 )
+	letter"     (  34 )
+	letter#     (  35 )
+	letter$     (  36 )
+	letter%     (  37 )
+	letter&     (  38 )
+	letter''    (  39 )
+	letter(     (  40 )
+	letter)     (  41 )
+	letter*     (  42 )
+	letter+     (  43 )
+	letter,     (  44 )
+	letter-     (  45 )
+	letter.     (  46 )
+	letter/     (  47 )
+	letter0     (  48 )
+	letter1     (  49 )
+	letter2     (  50 )
+	letter3     (  51 )
+	letter4     (  52 )
+	letter5     (  53 )
+	letter6     (  54 )
+	letter7     (  55 )
+	letter8     (  56 )
+	letter9     (  57 )
+	letter:     (  58 )
+	letter;     (  59 )
+	letter<     (  60 )
+	letter=     (  61 )
+	letter>     (  62 )
+	letter?     (  63 )
+	letter@     (  64 )
+	letterA     (  65 )
+	letterB     (  66 )
+	letterC     (  67 )
+	letterD     (  68 )
+	letterE     (  69 )
+	letterF     (  70 )
+	letterG     (  71 )
+	letterH     (  72 )
+	letterI     (  73 )
+	letterJ     (  74 )
+	letterK     (  75 )
+	letterL     (  76 )
+	letterM     (  77 )
+	letterN     (  78 )
+	letterO     (  79 )
+	letterP     (  80 )
+	letterQ     (  81 )
+	letterR     (  82 )
+	letterS     (  83 )
+	letterT     (  84 )
+	letterU     (  85 )
+	letterV     (  86 )
+	letterW     (  87 )
+	letterX     (  88 )
+	letterY     (  89 )
+	letterZ     (  90 )
+	letter[     (  91 )
+	letter\     (  92 )
+	letter]     (  93 )
+	letter^     (  94 )
+	letter_     (  95 )
+	letter`     (  96 )
+	lettera     (  97 )
+	letterb     (  98 )
+	letterc     (  99 )
+	letterd     ( 100 )
+	lettere     ( 101 )
+	letterf     ( 102 )
+	letterg     ( 103 )
+	letterh     ( 104 )
+	letteri     ( 105 )
+	letterj     ( 106 )
+	letterk     ( 107 )
+	letterl     ( 108 )
+	letterm     ( 109 )
+	lettern     ( 110 )
+	lettero     ( 111 )
+	letterp     ( 112 )
+	letterq     ( 113 )
+	letterr     ( 114 )
+	letters     ( 115 )
+	lettert     ( 116 )
+	letteru     ( 117 )
+	letterv     ( 118 )
+	letterw     ( 119 )
+	letterx     ( 120 )
+	lettery     ( 121 )
+	letterz     ( 122 )
+	letter{     ( 123 )
+	letter|     ( 124 )
+	letter}		( 125 )
+	letter~     	( 126 )
+	;
+	
+: printAscii  4 * '' characterTable 4+ + @ EXECUTE ;
+
+: emit DUP 127 > IF letterNone ELSE printAscii THEN ;
+
+: printAll 32 BEGIN DUP 127 <= WHILE DUP DUP emit 1+ REPEAT   ;
+
+printAll
+'.
+
+
+forth run.
+
+forth memory  stackAsUnsignedArray 
+]
+
+{ #category : #accessing }
 Forth class >> plotLetters [
 
 <script>
@@ -49,7 +877,7 @@ loopSP @ CONSTANT loopTop
 : cm 100 * ;
 : dot ;
 : dots ;
-: pt 8 dots * ;
+: pt 4 dots * ;
 
 : penTranslate BEGIN DUP 0> WHILE PENSTEP 1- REPEAT DROP ;
 : penMove PENUP penTranslate ;

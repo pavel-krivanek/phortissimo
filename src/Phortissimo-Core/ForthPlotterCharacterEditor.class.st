@@ -154,19 +154,25 @@ ForthPlotterCharacterEditor >> offset [
 ForthPlotterCharacterEditor >> printJump: p [
 
 	p = (0@0) ifFalse: [ 
-		('{1} pt {2} pt penJump' format: {p x. p y}) traceCr ] 
+		('{1} {2} penJump' format: {p x. p y}) traceCr ] 
 ]
 
 { #category : #drawing }
 ForthPlotterCharacterEditor >> printSequences [
+	
+	| last | 
+	
+	last := 1@1. 
+
 	Transcript clear.
 
 	sequences do: [ :seq | 
 		seq ifNotEmpty: [ 
 			| p |
-			p := seq first - (1 @ 1).
-			self printJump: p ].
-		(self sequenceString: seq) traceCr ].
+			p := (seq first - last).
+			self printJump: p. ].
+		(self sequenceString: seq) traceCr.
+		seq ifNotEmpty: [last := seq last] ].
 	(sequences notEmpty and: [ sequences first notEmpty ])
 		ifTrue: [ | p |
 			sequences last ifNotEmpty: [ 
@@ -182,5 +188,5 @@ ForthPlotterCharacterEditor >> sequenceString: sequence [
 
 	sequence size < 2 ifTrue: [ ^ '' ].
 	^ (sequence overlappingPairsCollect: [ :a :b |
-		'draw', (self directionFrom: a to: b) ]) joinUsing: String space
+		'dr', (self directionFrom: a to: b) ]) joinUsing: String space
 ]
