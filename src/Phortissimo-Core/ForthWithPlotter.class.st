@@ -16,8 +16,12 @@ ForthWithPlotter class >> example [
 	forth openPlotter.
 	forth loadStdWithPlotter.
 	forth << '
-	." Hello world!" cr
-	words
+	." Phortissimo ready" cr
+	
+: readLine begin readKeyboard dup 13 <> while dup addToInputBuffer printAscii repeat printAscii ; 
+: quit begin readLine interpret again ; 
+
+quit
 	'.
 
 	forth run.
@@ -34,7 +38,7 @@ ForthWithPlotter >> memoryInitializer [
 { #category : #initialization }
 ForthWithPlotter >> openPlotter [
 
-	plotter := ForthPlotter new.
+	plotter := ForthPlotter new forth: self.
 	plotter open.
 ]
 

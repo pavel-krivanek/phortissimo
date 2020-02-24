@@ -2,15 +2,13 @@ Class {
 	#name : #ForthPlotter,
 	#superclass : #Object,
 	#instVars : [
-		'form',
+		'forth',
 		'position',
 		'direction',
 		'busy',
 		'morph',
 		'pen',
-		'window',
-		'surface',
-		'canvas'
+		'window'
 	],
 	#category : #'Phortissimo-Core-Plotter'
 }
@@ -66,8 +64,13 @@ ForthPlotter >> extent [
 ]
 
 { #category : #accessing }
-ForthPlotter >> form [
-	^ form
+ForthPlotter >> forth [
+	^ forth
+]
+
+{ #category : #accessing }
+ForthPlotter >> forth: anObject [
+	forth := anObject
 ]
 
 { #category : #'instance creation' }
@@ -81,13 +84,11 @@ ForthPlotter >> home [
 ForthPlotter >> initialize [
 
 	super initialize.
-	form := Form extent: self extent depth: 2.
-	form fillWhite.
-	canvas := FormCanvas on: form.
 	position := 0@0.
 	pen := false.
 	direction := 0@0.
 	busy := false.
+	morph := ForthPlotterMorph for: self.
 ]
 
 { #category : #'instance creation' }
@@ -105,7 +106,6 @@ ForthPlotter >> limitted: aPoint [
 { #category : #'instance creation' }
 ForthPlotter >> open [ 
 	
-	morph := form asMorph.
 	window := morph openInWindow.
 ]
 
@@ -154,7 +154,7 @@ ForthPlotter >> step [
 		position := limitted.
 		^ self ].
 	
-	canvas line: position to: limitted color: Color black.
+	morph line: position to: limitted color: Color black.
 	position := limitted.
 	
 

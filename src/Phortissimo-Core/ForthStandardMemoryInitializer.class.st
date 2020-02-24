@@ -156,6 +156,8 @@ ForthStandardMemoryInitializer >> initializeIOPrimitives [
 	self installAll: { 
 		ForthCodeKey.
 		ForthCodeEmit.
+		ForthCodeReadKeyboard.
+		ForthCodeAddToInputBuffer.
 	}
 	
 ]

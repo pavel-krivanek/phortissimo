@@ -14,7 +14,8 @@ Class {
 		'inputBuffer',
 		'outputBuffer',
 		'unknownLabels',
-		'state'
+		'state',
+		'keyboardBuffer'
 	],
 	#category : #'Phortissimo-Core-Basic'
 }
@@ -1333,6 +1334,15 @@ Forth >> addLabel: aLabel address: anAddress [
 
 ]
 
+{ #category : #adding }
+Forth >> addToKeyboardBuffer: aCharacter [
+
+	| wasRunning |
+	wasRunning := state = #running.
+	keyboardBuffer add: aCharacter asciiValue.
+	wasRunning ifFalse: [ state := #running. self run ]
+]
+
 { #category : #accessing }
 Forth >> addressForLabel: aLabel [
 
@@ -1454,6 +1464,7 @@ Forth >> initialize [
 	
 	inputBuffer := OrderedCollection new.
 	outputBuffer := OrderedCollection new.
+	keyboardBuffer := OrderedCollection new.
 		
 	self memoryInitializer initializeMemory.
 	
@@ -1708,13 +1719,23 @@ Forth >> privNumber: wordStringAddress length: length [
 ]
 
 { #category : #accessing }
+Forth >> privReadKeyboard [
+
+	keyboardBuffer isEmpty ifTrue: [ 
+		self noInput.
+		^ 0 ].
+
+	^ keyboardBuffer removeFirst.
+]
+
+{ #category : #accessing }
 Forth >> privWord [
 
 	| length character characterCode|
 	
 	length := 0.
 	
-	[  self inputBuffer isEmpty ifTrue: [ 
+	[ self inputBuffer isEmpty ifTrue: [ 
 			self noInput.
 			^ self wordBufferAddress -> 0 ].
 
@@ -1837,7 +1858,8 @@ Forth >> step [
 
 	"('pc: ', pc asString, ' ', (self labels associations select: [ :e | e value = pc ]) asString)  traceCr."
 	(self memoryAt: pc) execute.
-	pc := pc + 1.
+	state = #running ifTrue: [ 
+		pc := pc + 1. ]
 ]
 
 { #category : #initialization }
