@@ -18,7 +18,15 @@ ForthPlotterMorph class >> for: aPlotter [
 { #category : #accessing }
 ForthPlotterMorph >> drawOn: aCanvas [
 
-	aCanvas drawImage: form at: self topLeft
+	| aPosition clipped |
+	
+	clipped := aCanvas copyClipRect: self bounds.
+
+	clipped drawImage: form at: self topLeft.
+	
+	aPosition := self topLeft + plotter position.
+	
+	clipped drawPolygon: { aPosition. aPosition + (-10@(-20)). aPosition + (10@(-20)) } color: (Color red alpha: 0.3) borderWidth: 0 borderColor: Color black
 ]
 
 { #category : #accessing }
@@ -65,7 +73,8 @@ ForthPlotterMorph >> keyStroke: event [
 ForthPlotterMorph >> line: fromPoint to: toPoint color: aColor [
 
 	canvas line: fromPoint to: toPoint color: aColor.
-	self changed.
+	self changed. 
+	self slowDrawing ifTrue: [World doOneCycle].
 ]
 
 { #category : #accessing }
@@ -76,6 +85,12 @@ ForthPlotterMorph >> plotter [
 { #category : #accessing }
 ForthPlotterMorph >> plotter: anObject [
 	plotter := anObject
+]
+
+{ #category : #drawing }
+ForthPlotterMorph >> slowDrawing [
+
+	^ false
 ]
 
 { #category : #keyboard }
