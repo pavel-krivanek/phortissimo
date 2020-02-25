@@ -65,7 +65,7 @@ ForthPlotterMorph >> keyStroke: event [
 ForthPlotterMorph >> line: fromPoint to: toPoint color: aColor [
 
 	canvas line: fromPoint to: toPoint color: aColor.
-	self changed
+	self changed.
 ]
 
 { #category : #accessing }

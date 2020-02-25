@@ -18,7 +18,7 @@ ForthWithPlotter class >> example [
 	forth << '
 	." Phortissimo ready" cr
 	
-: readLine begin readKeyboard dup 13 <> while dup addToInputBuffer printAscii repeat printAscii ; 
+: readLine begin readKeyboard dup 13 <> while dup addToInputBuffer printAscii repeat dup addToInputBuffer printAscii ; 
 : quit begin readLine interpret again ; 
 
 quit
@@ -33,6 +33,12 @@ quit
 ForthWithPlotter >> memoryInitializer [
 
 	^ ForthWithPlotterMemoryInitializer for: self
+]
+
+{ #category : #initialization }
+ForthWithPlotter >> noInput [
+
+	"ignore"
 ]
 
 { #category : #initialization }

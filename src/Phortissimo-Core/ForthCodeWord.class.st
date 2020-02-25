@@ -13,9 +13,9 @@ ForthCodeWord >> execute [
 	| addressLengthAssociation |
 	
 	addressLengthAssociation := forth privWord.
+	self forth isRunning ifFalse: [ ^ self ].
 	forth push: addressLengthAssociation key asUnsigned4Bytes.
 	forth push: addressLengthAssociation value asUnsigned4Bytes.
-	
 ]
 
 { #category : #accessing }

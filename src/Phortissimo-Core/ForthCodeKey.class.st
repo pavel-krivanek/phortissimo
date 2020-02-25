@@ -7,7 +7,9 @@ Class {
 { #category : #accessing }
 ForthCodeKey >> execute [ 
 
-	forth push: forth inputBuffer removeFirst asUnsigned4Bytes
+	| input |
+	input := forth readInputBuffer.
+	self forth isRunning ifTrue: [ forth push: input asUnsigned4Bytes ]
 ]
 
 { #category : #accessing }

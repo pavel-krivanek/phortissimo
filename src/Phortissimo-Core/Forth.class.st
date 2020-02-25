@@ -1340,7 +1340,7 @@ Forth >> addToKeyboardBuffer: aCharacter [
 	| wasRunning |
 	wasRunning := state = #running.
 	keyboardBuffer add: aCharacter asciiValue.
-	wasRunning ifFalse: [ state := #running. self run ]
+	wasRunning ifFalse: [ self makeRunning. self run ]
 ]
 
 { #category : #accessing }
@@ -1489,6 +1489,12 @@ Forth >> isImmediate: dictionaryWordAddress [
 	^ ((self byteAt: (dictionaryWordAddress + self wordSize)) bitAnd: self flagImmediate) ~= 0. 
 ]
 
+{ #category : #initialization }
+Forth >> isRunning [ 
+
+	^ state = #running
+]
+
 { #category : #accessing }
 Forth >> labels [ 
 
@@ -1541,6 +1547,12 @@ Forth >> loadStd [
 Forth >> loadStdWithPlotter [
 
 	self << (self class package mcWorkingCopy ancestry ancestors first package repository location / 'src-forth' / 'std-plotter.f') readStream upToEnd.
+]
+
+{ #category : #initialization }
+Forth >> makeRunning [
+
+	state := #running
 ]
 
 { #category : #accessing }
@@ -1603,6 +1615,12 @@ Forth >> memorySize [
 
 { #category : #initialization }
 Forth >> noInput [
+
+	state := #noInput
+]
+
+{ #category : #initialization }
+Forth >> noKeyboardInput [
 
 	state := #noInput
 ]
@@ -1722,7 +1740,7 @@ Forth >> privNumber: wordStringAddress length: length [
 Forth >> privReadKeyboard [
 
 	keyboardBuffer isEmpty ifTrue: [ 
-		self noInput.
+		self noKeyboardInput.
 		^ 0 ].
 
 	^ keyboardBuffer removeFirst.
@@ -1739,7 +1757,7 @@ Forth >> privWord [
 			self noInput.
 			^ self wordBufferAddress -> 0 ].
 
-		characterCode := self inputBuffer removeFirst.
+		characterCode := self readInputBuffer.
 		character := Character value: characterCode.
 		character isSeparator.
 	] whileTrue.
@@ -1749,7 +1767,7 @@ Forth >> privWord [
 		length := length + 1.
 		result := self inputBuffer isEmpty 
 			ifFalse: [ 
-				characterCode := self inputBuffer removeFirst.
+				characterCode := self readInputBuffer.
 				character := Character value: characterCode.
 				character isSeparator ] 
 			ifTrue: [ true ].
@@ -1760,7 +1778,7 @@ Forth >> privWord [
 		self inputBuffer isEmpty ifTrue: [ 
 			self noInput.
 			^ self wordBufferAddress -> 0 ].
-		characterCode := self inputBuffer removeFirst.
+		characterCode := self readInputBuffer.
 		character := Character value: characterCode.
 		(character = Character cr) or: [ character = Character lf ] ] whileFalse.
 		^ self privWord ].
@@ -1781,6 +1799,16 @@ Forth >> push: bytes [
 Forth >> pushToReturnStack: address [ 
 
 	^ memory pushToReturnStack: address 
+]
+
+{ #category : #accessing }
+Forth >> readInputBuffer [
+
+	inputBuffer isEmpty ifTrue: [ 
+		self noInput.
+		^ 0 ].
+
+	^ inputBuffer removeFirst.
 ]
 
 { #category : #accessing }
@@ -1858,7 +1886,7 @@ Forth >> step [
 
 	"('pc: ', pc asString, ' ', (self labels associations select: [ :e | e value = pc ]) asString)  traceCr."
 	(self memoryAt: pc) execute.
-	state = #running ifTrue: [ 
+	self isRunning ifTrue: [ 
 		pc := pc + 1. ]
 ]
 
